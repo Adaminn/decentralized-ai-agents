@@ -1,0 +1,355 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+.App {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.App-header {
+  background-color: rgb(235, 242, 254);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: rgb(26, 17, 83);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+.App {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+
+.App-header {
+  background-color: rgb(235, 242, 254);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: rgb(26, 17, 83);
+}
+
+.ModelInfo {
+  margin-bottom: 10px; /* Adjust margin as needed */
+  font-size: 18px; /* Example font size */
+  text-align: left; /* Ensure text alignment is left */
+}
+
+.OwnerModelInfo {
+  margin-bottom: 10px; /* Adjust margin as needed */
+  width: 100%;
+  position: absolute;
+  left: 7.5%;
+  font-size: 18px; /* Example font size */
+  text-align: left; /* Ensure text alignment is left */
+}
+
+
+.Title, .ModelListTitle, .OwnerListTitle, .TrainingListTitle, .AttestationListTitle {
+  color: rgb(26, 17, 83);
+  position: absolute;
+  font-size: 30px;
+  font-weight: 100;
+  transition: color 0.3s ease-in-out;
+}
+
+.Title { left: 2.5%; top: 1%; }
+.ModelListTitle { left: 10%; top: 45%; }
+.OwnerListTitle { left: 10%; font-size: 20px; top: 13%; }
+.TrainingListTitle { left: 37.5%; font-size: 20px; top: 13%; }
+.AttestationListTitle { left: 65%; font-size: 20px; top: 13%; }
+
+.ModelList, .OwnerList, .PerformerList, .AttestationList {
+  background-color: rgb(255, 255, 255);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: absolute;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.ModelList { width: 80%; height: 40%; left: 10%; top: 56%; font-size: 30px; }
+.OwnerList, .PerformerList, .AttestationList {
+  width: 25%; height: 20%; font-size: 30px;
+}
+.OwnerList { left: 10%; top: 20%; }
+.PerformerList { left: 37.5%; top: 20%; }
+.AttestationList { left: 65%; top: 20%; }
+
+.NewModel, .ConnectWalletButton {
+  background-color: rgb(26, 17, 83);
+  color: white;
+  font-size: 20px;
+  position: absolute;
+  border: none;
+  shadow: none;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.NewModel {
+  right: 9%; width: 15%; height: 5%;
+}
+
+.ConnectWalletButton {
+  right: 9%; top: 5%; width: 12%; height: 5%;
+}
+
+.ConnectWalletButton.connected {
+  width: 35%;
+}
+
+.Title, .ModelListTitle, .OwnerListTitle, .TrainingListTitle, .AttestationListTitle {
+  color: rgb(26, 17, 83);
+  position: absolute;
+  font-size: 30px;
+  font-weight: 100;
+  transition: color 0.3s ease-in-out;
+}
+
+.TrainButton:hover {
+  transform: scale(1.02);
+}
+
+.TrainButton {
+
+  background-color: rgb(26, 17, 83);
+  color: white;
+  width: 10%;
+  right: 5%;
+  height: 10%;
+  font-size: 20px;
+  position: absolute;
+  border: none;
+  shadow: none;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+}
+
+.StopButton {
+
+  background-color: rgb(26, 17, 83);
+  color: white;
+  top: 25%;
+  width: 12.5%;
+  right: 10%;
+  height: 12.5%;
+  font-size: 15px;
+  position: absolute;
+  border: none;
+  shadow: none;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+}
+
+.Title { left: 2.5%; top: 1%; }
+.ModelListTitle { left: 10%; top: 45%; }
+.OwnerListTitle { left: 10%; font-size: 20px; top: 13%; }
+.TrainingListTitle { left: 37.5%; font-size: 20px; top: 13%; }
+.AttestationListTitle { left: 65%; font-size: 20px; top: 13%; }
+
+.ModelList, .OwnerList, .PerformerList, .AttestationList {
+  background-color: rgb(255, 255, 255);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: absolute;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.ModelList, .OwnerList, .PerformerList, .AttestationList, .pastContributionList {
+  transition: filter 0.5s ease-in-out;
+}
+
+.ModelList.blurred {
+  filter: blur(5px);
+}
+
+.OwnerList.blurred {
+  filter: blur(5px);
+}
+
+.PerformerList.blurred {
+  filter: blur(5px);
+}
+
+.AttestationList.blurred {
+  filter: blur(5px);
+}
+
+.pastContributionList.blurred {
+  filter: blur(5px);
+}
+
+.ModelList { width: 80%; height: 40%; left: 10%; top: 56%; font-size: 30px; }
+.OwnerList, .PerformerList, .AttestationList {
+  width: 25%; height: 20%; font-size: 30px;
+}
+.OwnerList { left: 10%; top: 20%; }
+.PerformerList { left: 37.5%; top: 20%; }
+.AttestationList { left: 65%; top: 20%; }
+
+.NewModel, .ConnectWalletButton {
+  background-color: rgb(26, 17, 83);
+  color: white;
+  font-size: 20px;
+  position: absolute;
+  border: none;
+  shadow: none;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.NewModel {
+  right: 9%; width: 15%; height: 5%;
+}
+
+.ConnectWalletButton {
+  right: 9%; top: 5%; width: 12%; height: 5%;
+}
+
+.ConnectWalletButton.connected {
+  width: 35%;
+}
+
+.ModelList .Model, .PerformerList .Model, .AttestationList .Model {
+  background-color: rgb(255, 255, 255);
+  width: 100%;
+  flex: 1 0 20%;
+  margin: 5px 0;
+  border-top: 1px solid lightgrey;
+  border-bottom: 1px solid lightgrey;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  justify-content: left;
+  color: rgb(26, 17, 83);
+  font-size: 20px;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.OwnerList .Model {
+  background-color: rgb(255, 255, 255);
+  width: 100%;
+  height: 20%;
+  flex: 1 0 auto;
+  margin: 5px 0;
+  border-top: 1px solid lightgrey;
+  border-bottom: 1px solid lightgrey;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  justify-content: left;
+  color: rgb(26, 17, 83);
+  font-size: 20px;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+
+.SubmitButton {
+
+  background-color: rgb(26, 17, 83);
+  color: white;
+  top: 70%;
+  width: 20%;
+  left: 55%;
+  height: 10%;
+  font-size: 20px;
+  position: absolute;
+  border: none;
+  shadow: none;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+}
+
+.answer {
+
+  color: rgb(26, 17, 83);
+  top: 50%;
+  width: 20%;
+  left: 35%;
+  height: 10%;
+  font-size: 30px;
+  position: absolute;
+  border: none;
+  shadow: none;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+}
+
+.SubmitButton:hover{
+  transform: scale(1.02);
+}
+
+.CancelButton:hover{
+  transform: scale(1.02);
+}
+
+.inputField {
+  position: absolute; 
+  font-size: 20px;
+  left: 10%;
+  height: 10%;
+  top: 40%;
+  width: 80%;
+}
+
+.CancelButton {
+
+  background-color: rgb(26, 17, 83);
+  color: white;
+  top: 70%;
+  width: 20%;
+  left: 25%;
+  height: 10%;
+  font-size: 20px;
+  position: absolute;
+  border: none;
+  shadow: none;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+}
+
+.Popup {
+  position: fixed; /* Make sure the popup is fixed relative to the viewport */
+  top: 50%; /* Center the popup vertically */
+  left: 50%; /* Center the popup horizontally */
+  transform: translate(-50%, -50%); /* Centering trick */
+  background-color: white; /* Background color */
+  border: 2px solid black; /* Border styling */
+  width: 40%; /* Set the width */
+  height: 40%; /* Set the height */
+  z-index: 1000; /* High z-index to ensure it's on top of other elements */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add some shadow for better visibility */
+  padding: 20px; /* Optional: Add some padding */
+  border-radius: 10px; /* Optional: Add border radius for rounded corners */
+}
+
+
+.ModelList .Model:hover, .OwnerList .Model:hover, .PerformerList .Model:hover, .AttestationList .Model:hover {
+  background-color: rgba(235, 242, 254, 0.8);
+}
+
+.OwnerModelInfo {
+  transform: scale(1.02);
+}
+
+.NewModel:hover, .ConnectWalletButton:hover {
+  background-color: rgb(40, 30, 120);
+  transform: scale(1.02);
+}
