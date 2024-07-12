@@ -1,0 +1,105 @@
+version: '3.9'
+services:
+  redis_db:
+    extends:
+      file: ./docker-compose/services/redis.yml
+      service: redis_db
+
+  db-init:
+    extends:
+      file: ./docker-compose/services/db.yml
+      service: db-init
+
+  db:
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    extends:
+      file: ./docker-compose/services/db.yml
+      service: db
+
+  backend:
+    depends_on:
+      - db
+      - redis_db
+    extends:
+      file: ./docker-compose/services/backend.yml
+      service: backend
+    links:
+      - db:database
+    environment:
+        ETHEREUM_JSONRPC_HTTP_URL: http://nitro:8449/
+        ETHEREUM_JSONRPC_TRACE_URL: http://nitro:8449/
+        INDEXER_DISABLE_PENDING_TRANSACTIONS_FETCHER: "true"
+
+  visualizer:
+    extends:
+      file: ./docker-compose/services/visualizer.yml
+      service: visualizer
+
+  sig-provider:
+    extends:
+      file: ./docker-compose/services/sig-provider.yml
+      service: sig-provider
+
+  frontend:
+    depends_on:
+      - backend
+    extends:
+      file: ./docker-compose/services/frontend.yml
+      service: frontend
+    environment:
+      NEXT_PUBLIC_NETWORK_NAME: "Arbitrum Local"
+      NEXT_PUBLIC_NETWORK_SHORT_NAME: "Arbitrum Local"
+      NEXT_PUBLIC_AD_BANNER_PROVIDER: "none"
+      NEXT_PUBLIC_NETWORK_RPC_URL: http://nitro:8449/
+
+
+  stats-db-init:
+    extends:
+      file: ./docker-compose/services/stats.yml
+      service: stats-db-init
+
+  stats-db:
+    depends_on:
+      stats-db-init:
+        condition: service_completed_successfully
+    extends:
+      file: ./docker-compose/services/stats.yml
+      service: stats-db
+
+  stats:
+    depends_on:
+      - stats-db
+      - backend
+    extends:
+      file: ./docker-compose/services/stats.yml
+      service: stats
+
+  proxy:
+    depends_on:
+      - backend
+      - frontend
+      - stats
+    extends:
+      file: ./docker-compose/services/nginx.yml
+      service: proxy
+
+  nitro:
+    image: offchainlabs/nitro-node:v2.3.3-6a1c1a7
+    ports:
+      - "127.0.0.1:8449:8449"
+    volumes:
+      - "./config:/home/user/.arbitrum"
+    command: --conf.file /home/user/.arbitrum/nodeConfig.json
+
+  das-server:
+    image: offchainlabs/nitro-node:v2.3.3-6a1c1a7
+    entrypoint: [ "/bin/bash", "/das-server.sh" ]
+    volumes:
+      - "./config:/home/user/.arbitrum"
+      - "./das-server.sh:/das-server.sh"
+      - "./das-data:/home/user/das-data"
+    ports:
+      - "9876:9876"
+      - "9877:9877"
