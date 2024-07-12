@@ -14,8 +14,11 @@ contract Marketplace {
     // Result received by
     event ResultReceived(string result);
 
-    // Router manager asks for task
+    // Router manager asks for single task
     event ManagerTaskRequest(address indexed wallet, string query);
+
+    // Router manager asks for bouncing task
+    event BouncingTaskRequest(address indexed wallet, uint256 taskId, string query, uint256 nextTaskId);
 
     // Funds sent to router and intelligent agent
     event FundsDistributed(address indexed recipient, uint256 amount);
@@ -36,9 +39,18 @@ contract Marketplace {
         string query;
     }
 
+    struct BouncingTask {
+        uint256 id;
+        address requester;
+        string query;
+        uint256 nextTaskId;
+    }
+
     mapping(address => RouterManager) public routerManagers; // Mapping wallet addresses of router managers
     mapping(address => IntelligentAgent) public intelligentAgents; // Mapping wallet addresses of intelligent agents
-    Task[] public tasks; // Array to store tasks
+    Task[] public tasks; // Array to store single tasks
+    BouncingTask[] public bouncingTasks; // Array to store bouncing tasks
+    uint256 public nextTaskId; // ID counter for bouncing tasks
 
     modifier onlyRouterManager() {
         require(routerManagers[msg.sender].salary != 0, "Only a router manager can call this function");
@@ -100,7 +112,7 @@ contract Marketplace {
         emit QuerySent(_query);
     }
 
-    // Function for router manager to ask intelligent agent for task
+    // Function for router manager to ask intelligent agent for a single task
     function managerTaskRequest(address wallet, string memory query) public onlyRouterManager {
         tasks.push(Task({
             requester: wallet,
@@ -109,7 +121,7 @@ contract Marketplace {
         emit ManagerTaskRequest(wallet, query);
     }
 
-    // Function for intelligent agent to submit task
+    // Function for intelligent agent to submit a single task
     function submitTask(address wallet, string memory result) public onlyIntelligentAgent {
         bool validTask = false;
         uint256 taskIndex = 0;
@@ -133,6 +145,54 @@ contract Marketplace {
         payable(msg.sender).transfer(0.01 ether);
 
         emit ResultReceived(result);
+    }
+
+        // Function for router manager to ask intelligent agents for a bouncing task
+    function managerBouncingTaskRequest(address wallet, string memory query, uint256[] memory nextTaskIds) public onlyRouterManager {
+        bouncingTasks.push(BouncingTask({
+            id: nextTaskId,
+            requester: wallet,
+            query: query,
+            nextTaskIds: nextTaskIds
+        }));
+        emit BouncingTaskRequest(wallet, nextTaskId, query);
+        nextTaskId++;
+    }
+
+    // Function for intelligent agent to submit a bouncing task
+    function submitBouncingTask(uint256 taskId, string memory result) public onlyIntelligentAgent {
+        bool validTask = false;
+        uint256 taskIndex = 0;
+
+        for (uint256 i = 0; i < bouncingTasks.length; i++) {
+            if (bouncingTasks[i].id == taskId) {
+                validTask = true;
+                taskIndex = i;
+                break;
+            }
+        }
+
+        require(validTask, "No matching task found");
+
+        uint256[] memory nextTaskIds = bouncingTasks[taskIndex].nextTaskIds;
+        delete bouncingTasks[taskIndex];
+
+        // Reward the caller with 0.01 ETH
+        require(address(this).balance >= 0.01 ether, "Not enough balance to reward");
+        payable(msg.sender).transfer(0.01 ether);
+
+        emit ResultReceived(result);
+
+        // Trigger the next tasks
+        for (uint256 i = 0; i < nextTaskIds.length; i++) {
+            uint256 nextTaskId = nextTaskIds[i];
+            for (uint256 j = 0; j < bouncingTasks.length; j++) {
+                if (bouncingTasks[j].id == nextTaskId) {
+                    managerBouncingTaskRequest(bouncingTasks[j].requester, bouncingTasks[j].query, bouncingTasks[j].nextTaskIds);
+                    break;
+                }
+            }
+        }
     }
 
     function distributeFunds(address payable recipient) public payable {
