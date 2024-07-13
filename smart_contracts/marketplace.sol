@@ -48,6 +48,7 @@ contract Marketplace {
 
     mapping(address => RouterManager) public routerManagers; // Mapping wallet addresses of router managers
     mapping(address => IntelligentAgent) public intelligentAgents; // Mapping wallet addresses of intelligent agents
+
     Task[] public tasks; // Array to store single tasks
     BouncingTask[] public bouncingTasks; // Array to store bouncing tasks
     uint256 public nextTaskId; // ID counter for bouncing tasks
@@ -64,7 +65,7 @@ contract Marketplace {
 
     constructor(address _initialRouterManager) {
         routerManagers[_initialRouterManager] = RouterManager({
-            salary: 0, // Initial salary can be set to 0 or any value
+            salary: 0,
             reputation: 0
         });
     }
@@ -84,7 +85,7 @@ contract Marketplace {
     function addIntelligentAgent(
         uint256 _salary,
         string memory _jobDescription
-    ) public onlyRouterManager {
+    ) public {
         intelligentAgents[msg.sender] = IntelligentAgent({
             salary: _salary,
             jobDescription: _jobDescription,
@@ -99,8 +100,8 @@ contract Marketplace {
         uint256 _salary,
         string memory _jobDescription
     ) public onlyIntelligentAgent {
-        require(intelligentAgents[_agent].salary != 0, "Intelligent agent does not exist");
         if(msg.sender == _agent) {
+            require(intelligentAgents[_agent].salary != 0, "Intelligent agent does not exist");
             intelligentAgents[_agent].salary = _salary;
             intelligentAgents[_agent].jobDescription = _jobDescription;
             emit IntelligentAgentUpdated(_agent, _salary, _jobDescription, intelligentAgents[_agent].reputation);
@@ -147,113 +148,7 @@ contract Marketplace {
         emit ResultReceived(result);
     }
 
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Marketplace {
-
-    // Add and remove intelligent agents
-    event IntelligentAgentAdded(address agent, uint256 salary, string jobDescription, uint256 reputation);
-    event IntelligentAgentUpdated(address agent, uint256 salary, string jobDescription, uint256 reputation);
-    event RouterManagerAdded(address manager);
-
-    // Initial query from user to router manager
-    event QuerySent(string query);
-
-    // Result received by
-    event ResultReceived(string result);
-
-    // Router manager asks for bouncing task
-    event BouncingTaskRequest(address indexed wallet, uint256 taskId, string query);
-
-    // Funds sent to router and intelligent agent
-    event FundsDistributed(address indexed recipient, uint256 amount);
-
-    struct IntelligentAgent {
-        uint256 salary; // Price per token for intelligent agent
-        string jobDescription; // Description of what the intelligent agent's specialization is
-        uint256 reputation; // Reputation of the intelligent agent
-    }
-
-    struct RouterManager {
-        uint256 salary; // Salary of the router manager
-        uint256 reputation; // Reputation of the router manager
-    }
-
-    struct BouncingTask {
-        uint256 id;
-        address requester;
-        string query;
-        uint256 nextTaskId; // ID of the next task in sequence
-    }
-
-    mapping(address => RouterManager) public routerManagers; // Mapping wallet addresses of router managers
-    mapping(address => IntelligentAgent) public intelligentAgents; // Mapping wallet addresses of intelligent agents
-    BouncingTask[] public bouncingTasks; // Array to store bouncing tasks
-    uint256 public nextTaskId; // ID counter for bouncing tasks
-
-    modifier onlyRouterManager() {
-        require(routerManagers[msg.sender].salary != 0, "Only a router manager can call this function");
-        _;
-    }
-
-    modifier onlyIntelligentAgent() {
-        require(intelligentAgents[msg.sender].salary != 0, "Only an intelligent agent can call this function");
-        _;
-    }
-
-    constructor(address _initialRouterManager) {
-        routerManagers[_initialRouterManager] = RouterManager({
-            salary: 0, // Initial salary can be set to 0 or any value
-            reputation: 0
-        });
-    }
-
-    // Function for a router manager to add himself initially
-    function addRouterManager(
-        uint256 _salary
-    ) public {
-        routerManagers[msg.sender] = RouterManager({
-            salary: _salary,
-            reputation: 0
-        });
-        emit RouterManagerAdded(msg.sender);
-    }
-
-    // Function for an intelligent agent to add himself initially
-    function addIntelligentAgent(
-        uint256 _salary,
-        string memory _jobDescription
-    ) public onlyRouterManager {
-        intelligentAgents[msg.sender] = IntelligentAgent({
-            salary: _salary,
-            jobDescription: _jobDescription,
-            reputation: 0
-        });
-        emit IntelligentAgentAdded(msg.sender, _salary, _jobDescription, 0);
-    }
-
-    // Function for intelligent agent to update himself
-    function updateIntelligentAgent(
-        address _agent,
-        uint256 _salary,
-        string memory _jobDescription
-    ) public onlyIntelligentAgent {
-        require(intelligentAgents[_agent].salary != 0, "Intelligent agent does not exist");
-        if(msg.sender == _agent) {
-            intelligentAgents[_agent].salary = _salary;
-            intelligentAgents[_agent].jobDescription = _jobDescription;
-            emit IntelligentAgentUpdated(_agent, _salary, _jobDescription, intelligentAgents[_agent].reputation);
-        }
-    }
-
-    // Function for user to query for intelligent agent output
-    function queryIntelligence(string memory _query) public {
-        emit QuerySent(_query);
-    }
-
-    // Function for router manager to ask intelligent agents for a bouncing task
-    function managerBouncingTaskRequest(address wallet, string memory query, uint256 nextTaskId) public onlyRouterManager {
+     function managerBouncingTaskRequest(address wallet, string memory query, uint256 nextTaskId) public onlyRouterManager {
         bouncingTasks.push(BouncingTask({
             id: nextTaskId,
             requester: wallet,
@@ -300,26 +195,4 @@ contract Marketplace {
         delete bouncingTasks[taskIndex];
     }
 
-    function distributeFunds(address payable recipient) public payable {
-        require(msg.value > 0, "No funds sent");
-        require(recipient != address(0), "Invalid recipient address");
-
-        recipient.transfer(msg.value);
-        emit FundsDistributed(recipient, msg.value);
-    }
-
-    // Function to receive ether to the contract
-    receive() external payable {}
-}
-
-    function distributeFunds(address payable recipient) public payable {
-        require(msg.value > 0, "No funds sent");
-        require(recipient != address(0), "Invalid recipient address");
-
-        recipient.transfer(msg.value);
-        emit FundsDistributed(recipient, msg.value);
-    }
-
-    // Function to receive ether to the contract
-    receive() external payable {}
 }
