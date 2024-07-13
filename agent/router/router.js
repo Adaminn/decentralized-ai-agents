@@ -64,7 +64,7 @@ async function main() {
 
         console.log("New prompt recieved:", prompt);
 
-        const routerPrompt = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + " The description with their ordinal number are: " + modelDescriptions + ". Reply just with the ordinal number. Nothing else! Strictly just the ONE number!"
+        const routerPrompt = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + " The description with their ordinal number are: " + modelDescriptions + ". Reply just with the ordinal number. Strictly the ONE oridnal number that is avalible!. After you write this ONE number write space and after the space write the prompt you want to send to the agent.";
 
         try {
             const response = await runInference(routerPrompt);
