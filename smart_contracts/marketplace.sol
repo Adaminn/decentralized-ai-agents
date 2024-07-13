@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 contract Marketplace {
 
     event agentQueried(string prompt, address to, uint256 taskId);
+    //TODO: delete from
     event agentResponded(string output, address indexed from, address indexed to, uint256 callbackId);
 
     struct Task {

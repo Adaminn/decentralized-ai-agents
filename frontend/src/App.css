@@ -284,7 +284,7 @@
 
 .ConnectWalletButton {
   cursor: pointer;
-  right: 9%; top: 5%; width: 12%; height: 5%;
+  right: 4%; top: 5%; width: 12%; height: 5%;
 }
 
 .ConnectWalletButton.connected {

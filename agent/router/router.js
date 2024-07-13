@@ -16,22 +16,29 @@ const providerUrl = "https://sepolia.infura.io/v3/77065ab8cf2247e6aa92c57f31efdc
 const provider = new ethers.providers.JsonRpcProvider(providerUrl);
 const contract = new ethers.Contract(contractAddress, abi, provider);
 const wallet = new ethers.Wallet(WALLET_PRIVATE_KEY, provider);
-
-console.log("Listening for query events...");
-
+const contractWithSigner = new ethers.Contract(contractAddress, abi, wallet);
 
 async function main() {
 
     // fetch all the registerd models and their descrition in the contract
     const addressesAndagents = await contract.getAllAgentData();
     const [addressesAll, agentsAll] = addressesAndagents;
+
     console.log("All agents: ", addressesAll);
+    console.log("All agents: ", agentsAll);
+    
+    // Combine addresses and agents into a single array of tuples
+    const combinedAgents = addressesAll.map((address, index) => [address, agentsAll[index]]);
+    
+    // Filter out the wallet address
+    const otherAgents = combinedAgents.filter(([address, agentData]) => address !== wallet.address);
+    
 
-    const otherAgents = addressesAndagents.filter(([address, agentData]) => address !== wallet.address);
-
-    const [addresses, agents] = otherAgents;
+    const addresses = otherAgents.map(([address, agentData]) => address);
+    const agents = otherAgents.map(([address, agentData]) => agentData);
 
     console.log("Other agents: ", addresses);
+    console.log("Other agents: ", agents);
     // this will do console log all items in agents[0]
 
 
@@ -43,12 +50,19 @@ async function main() {
         return res.data;
     })
     */
-    const models = agents.map(agent => agent.metadata);
+    const metadatas = agents.map(agent => agent.metadata);
 
-    const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
+    const modelDescriptionsText = metadatas.map((metadata, index) => `${index + 1}. ${metadata}`).join(", "); 
+    console.log("Model descriptions in text with ordinals: ", modelDescriptionsText);
 
-    const agentAddresses = addresses.map((agent, index) => ({ [index + 1]: agent.address }));
+    const modelDescriptions = metadatas.map((metadata, index) => ({ [index + 1]: metadata }));
+    console.log("Model descriptions with ordinals: ", modelDescriptions);
 
+    const agentAddresses = addresses.reduce((acc, address, index) => {
+        acc[index + 1] = address;
+        return acc;
+    }, {});
+    console.log("Addressess with ordinals: ", agentAddresses);
 
     // save history for each query for specific task id
     const callbacksState = {};
@@ -57,35 +71,47 @@ async function main() {
     const callbackToTask = {};
 
     // get count of the models
-    const modelCount = models.length;
+    const modelCount = metadatas.length;
+
+    console.log("Listening for query events...");
 
     contract.on("agentQueried", async (prompt, to, taskId) => {
-        if ( to !== contract.address) {
+        if ( to !== wallet.address) {
             return;
         }
 
         console.log("New prompt recieved:", prompt);
 
-        const routerPrompt = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + " The description with their ordinal number are: " + modelDescriptions + ". Reply just with the ordinal number. Strictly the ONE oridnal number that is avalible!. After you write this ONE number write space and after the space write the prompt you want to send to the agent.";
+        const routerPromptToGetId = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + "\nThe description with their ordinal number are: " + modelDescriptionsText + "\n\n The ordinal number of the description that best suits this task is: "
 
         try {
-            const response = await runInference(routerPrompt);
+            const response = await runInference(routerPromptToGetId, 3);
 
             console.log("Generated text: ", response);
 
             // get the first number from the response
             const number = response.match(/\d+/)[0];
+            console.log("The selecte4d ordinal: ", number);
 
             // check if respone is an intager and in bounds of 1 to modelCount
             const responseInt = parseInt(number);
             if (isNaN(responseInt) || responseInt < 1 || responseInt > modelCount) {
                 throw new Error("Invalid response");
             }
-
+            const pickedDescription = modelDescriptions[responseInt];
             const agentAddress = agentAddresses[responseInt];
 
-            const callbackId = lastCallbackId++ ;
-            const tx = await contract.queryAgent(prompt, agentAddress, callbackId);
+            const routerPromptToGenerateQuery = "This is users query: " + prompt + "\nThis is assistnet users wants to use: " + pickedDescription + "\nHere is the query that the assitent should take as its input: "
+
+            const assitentPrompt = await runInference(routerPromptToGenerateQuery, 100);
+
+
+
+            const callbackId = lastCallbackId++;
+            console.log("AssiassitentPrompt: ", assitentPrompt)
+            console.log("agentAddress: ", agentAddress)
+            console.log("callbackId: ", callbackId)
+            const tx = await contractWithSigner.queryAgent(assitentPrompt, agentAddress, callbackId);
             callbacksState[callbackId] = prompt;
             callbackToTask[callbackId] = taskId;
             await tx.wait();
@@ -97,8 +123,9 @@ async function main() {
     });
 
     // listen to the agentResponded event
-    contract.on("agentResponded", async (output, to, callbackId) => {
-        if (to !== contract.address) {
+    contract.on("agentResponded", async (output, from, to, callbackId) => {
+        if (to !== wallet.address) {
+            console.log("Someone responded, but not to me")
             return;
         }
 
@@ -109,21 +136,21 @@ async function main() {
 
         const routerPrompt = "User submited this query: " + history + 
         ". The answer to this query from an assitent who is expert on this field is: " + output + 
-        ". Whit all this information, respond to the user query.";
+        ". Whit all this information, I can now reposnd to the users query. The response is: ";
 
         try {
-            const response = await runInference(routerPrompt);
+            const response = await runInference(routerPrompt, 80);
 
             console.log("Respond of the router after considering the help of other agent: ", response);
-            const tx = await contract.respond(response, taskId);
+            const tx = await contractWithSigner.respond(response, taskId);
             await tx.wait();
-            console.log("Transaction successful");
+            console.log("Final transaction successful");
         } catch (error) {
             console.error("Error handling response event:", error);
         }
     });
 
-    async function runInference(prompt) {
+    async function runInference(prompt, tokenCount) {
         const hf = new HfInference(HF_API_TOKEN); 
         
         const model = 'microsoft/Phi-3-mini-4k-instruct';
@@ -133,12 +160,11 @@ async function main() {
             model,
             inputs: prompt,
             parameters: {
-            max_new_tokens: 200,
+            max_new_tokens: tokenCount,
             do_sample: true,
             },
         });
-    
-        console.log('Generated text:', result.generated_text);
+
         return result.generated_text;
         } catch (error) {
             console.error('Error during inference:', error);
