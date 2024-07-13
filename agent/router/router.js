@@ -16,7 +16,6 @@ const contract = new ethers.Contract(contractAddress, abi, provider);
 
 console.log("Listening for query events...");
 
-let gptAnswer = "GPT Answer";
 
 
 // fetch all the registerd models and their descrition in the contract
@@ -30,24 +29,59 @@ const models = modelsIpfs.map(async (ipfs) => {
 
 // model is a json that has a description, price, and an endpoint where you can prompt it (after you deposite the price in the contract)
 
+const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
 
+// get count of the models
+const modelCount = models.length;
+
+const history = ""
+const firstRun = true;
 
 contract.on("QuerySent", async (prompt, event) => {
     console.log("New query received:");
     console.log("prompt:", prompt);
+    history = prompt;
+
+    if (firstRun) {
+        firstRun = false;
+        return;
+    }
+    const routerPrompt = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + " The description with their ordinal number are: " + modelDescriptions + ". Reply just with the ordinal number. Nothing else! Strictly just the ONE number!"
 
     try {
-        const generatedText = await runInference(prompt);
-        console.log("Generated text:", generatedText);
+        const response = await runInference(routerPrompt);
+        console.log("Generated text:", response);
 
-        gptAnswer = await uploadToPinata(generatedText);
-        console.log("Pinata Link:", gptAnswer);
+        // get the first number from the response
+        const number = response.match(/\d+/)[0];
 
-        await handleResultSubmission();
+        // check if respone is an intager and in bounds of 1 to modelCount
+        const responseInt = parseInt(number);
+        if (isNaN(responseInt) || responseInt < 1 || responseInt > modelCount) {
+            throw new Error("Invalid response");
+        }
+
+        const agentEndpoint = models[responseInt - 1].endpoint;
+
+        // send the prompt to the agent specified by agentEndpoint. Callback will be added in the SC
+        const tx = await contract.queryIntelligence(prompt, agentEndpoint);
+        await tx.wait();
+        console.log("Transaction successful");
+
     } catch (error) {
         console.error("Error handling query event:", error);
     }
 });
+
+const handleResultSubmission = async (output) => {
+    try {
+        const tx = await contract.resultGPT(output);
+        await tx.wait();
+        console.log("Transaction successful");
+    } catch (error) {
+        console.error("Error submitting answer", error);
+    }
+};
 
 async function runInference(prompt) {
     const hf = new HfInference(HF_API_TOKEN); 
