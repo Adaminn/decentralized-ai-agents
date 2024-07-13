@@ -3,6 +3,7 @@
 .App {
   text-align: center;
   font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
 }
 
 .App-header {
@@ -31,10 +32,11 @@
   position: absolute;
   top: 85%;
   left: 70%;
+  border: 1px solid black;
   width: 22.5%;
   height: 10%;
   background-color: rgb(255, 135, 135);
-  transform: translateX(100%); /* Start position outside the viewport */
+  transform: translateX(0%); /* Start position outside the viewport */
   transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition transform and opacity */
 }
 
@@ -74,7 +76,8 @@
 }
 
 .Title { left: 2.5%; top: 1%; }
-.Welcome { left: 40%; top: 25%; }
+.Welcome { left: 37.5%; top: 25%; }
+.Marketplace { left: 40%; top: 30%; }
 .ModelListTitle { left: 10%; top: 45%; }
 .OwnerListTitle { left: 10%; top: 13%; font-size: 20px; }
 .TrainingListTitle { left: 37.5%; top: 13%; font-size: 20px; }
@@ -94,6 +97,20 @@
   transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
+.dropdown-menu {
+  display: inline-block;
+  position: absolute;
+  background-color: white;
+  border: 0.5px solid rgb(25,30,35);
+  top: 18%;
+  left: 25%;
+  min-width: 160px;
+  list-style: none;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
 .ModelList { width: 80%; height: 40%; left: 10%; top: 56%; font-size: 30px; }
 .OwnerList, .PerformerList, .AttestationList {
   width: 25%; height: 20%; font-size: 30px;
@@ -110,7 +127,16 @@
   filter: blur(5px);
 }
 
-.ConnectWalletButton, .TrainButton, .StopButton, .SubmitButton {
+.openMarketplaceContainer {
+  opacity: 0;
+}
+
+.openMarketplaceContainer.submitted {
+  transition: opacity 2s ease-in-out;
+  opacity: 1;
+}
+
+.ConnectWalletButton, .TrainButton, .StopButton, .SubmitButton, .openMarketplaceButton {
   background-color: rgb(25, 30, 35);
   z-index: 100;
   color: white;
@@ -133,7 +159,13 @@
 }
 
 .ConnectWalletButton {
+  cursor: pointer;
   right: 9%; top: 5%; width: 12%; height: 5%;
+}
+
+.openMarketplaceButton {
+  cursor: pointer;
+  left: 25%; top: 15%; width: 12%; height: 5%;
 }
 
 .ConnectWalletButton.connected {
@@ -153,6 +185,7 @@
 }
 
 .SubmitButton {
+  cursor: pointer;
   top: 40%; width: 10%; left: 65%; height: 5%;
 }
 
@@ -174,6 +207,13 @@
 
 .inputField:focus {
   outline: none;
+}
+
+.dropdown-item {
+
+  border: 0.5px solid rgb(25,30,35);
+  width: 100%;
+
 }
 
 .answer {
@@ -268,15 +308,4 @@
 
 .answer-message {
   align-self: flex-start;
-}
-
-@keyframes slideInRight {
-  0% {
-    transform: translateX(100%); /* Start outside the viewport */
-    opacity: 0;
-  }
-  100% {
-    transform: translateX(0); /* Slide in to the left */
-    opacity: 1;
-  }
 }

@@ -9,240 +9,15 @@ function App() {
   const [provider, setProvider] = useState(null);
   const [queryQuestion, setQueryQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [agentData, setAgentData] = useState([]);
   const [popUp, setPopUp] = useState(false);
   const [contractInstance, setContractInstance] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [messages, setMessages] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const abi = [
-    {
-      "inputs": [],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "string",
-          "name": "prompt",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "taskId",
-          "type": "uint256"
-        }
-      ],
-      "name": "agentQueried",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "string",
-          "name": "output",
-          "type": "string"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "callbackId",
-          "type": "uint256"
-        }
-      ],
-      "name": "agentResponded",
-      "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "prompt",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "callbackId",
-          "type": "uint256"
-        }
-      ],
-      "name": "queryAgent",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "metadata",
-          "type": "string"
-        },
-        {
-          "internalType": "bool",
-          "name": "isRouter",
-          "type": "bool"
-        }
-      ],
-      "name": "registerAgent",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "output",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "taskId",
-          "type": "uint256"
-        }
-      ],
-      "name": "respond",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "metadata",
-          "type": "string"
-        },
-        {
-          "internalType": "bool",
-          "name": "isRouter",
-          "type": "bool"
-        }
-      ],
-      "name": "updateAgent",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "agentMetadata",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "metadata",
-          "type": "string"
-        },
-        {
-          "internalType": "bool",
-          "name": "isRouter",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getAllAgentData",
-      "outputs": [
-        {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "metadata",
-              "type": "string"
-            },
-            {
-              "internalType": "bool",
-              "name": "isRouter",
-              "type": "bool"
-            }
-          ],
-          "internalType": "struct Marketplace.Agent[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "tasks",
-      "outputs": [
-        {
-          "internalType": "string",
-          "name": "prompt",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "callbackId",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ];
+  const abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"prompt","type":"string"},{"indexed":false,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"taskId","type":"uint256"}],"name":"agentQueried","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"output","type":"string"},{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"callbackId","type":"uint256"}],"name":"agentResponded","type":"event"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"agentMetadata","outputs":[{"internalType":"string","name":"metadata","type":"string"},{"internalType":"bool","name":"isRouter","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getAllAgentData","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"components":[{"internalType":"string","name":"metadata","type":"string"},{"internalType":"bool","name":"isRouter","type":"bool"}],"internalType":"struct Marketplace.Agent[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"prompt","type":"string"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"callbackId","type":"uint256"}],"name":"queryAgent","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"metadata","type":"string"},{"internalType":"bool","name":"isRouter","type":"bool"}],"name":"registerAgent","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"output","type":"string"},{"internalType":"uint256","name":"taskId","type":"uint256"}],"name":"respond","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"tasks","outputs":[{"internalType":"string","name":"prompt","type":"string"},{"internalType":"address","name":"to","type":"address"},{"internalType":"address","name":"from","type":"address"},{"internalType":"uint256","name":"callbackId","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"metadata","type":"string"},{"internalType":"bool","name":"isRouter","type":"bool"}],"name":"updateAgent","outputs":[],"stateMutability":"nonpayable","type":"function"}];
 
   const contractAddress = '0xA4e631D4008c51A026628AB5EA7A0dCdFA89F5b4';
 
@@ -268,13 +43,14 @@ function App() {
   const handleQuerySubmission = async () => {
     if (signer) {
       try {
-        const tx = await contractInstance.queryAgent(queryQuestion, selectedAgentAddress, 0);
+        const tx = await contractInstance.queryAgent(queryQuestion, '0xc92915e144Fc8aEf1F4acDC5ABa6C3206F23d336', 0);
         setIsSubmitted(true);
         setMessages(prevMessages => [...prevMessages, { text: queryQuestion, sender: 'user' }]);
         setQueryQuestion('');
         await tx.wait();
       } catch (error) {
         setErrorMessage("transaction failed.");
+        setPopUp(true);
       }
     } else {
       setErrorMessage("wallet not connected.");
@@ -282,11 +58,28 @@ function App() {
     }
   };
 
+  const fetchAgentData = async () => {
+    if (contractInstance) {
+      try {
+        const [addresses, agents] = await contractInstance.getAllAgentData();
+        const agentData = addresses.map((address, index) => ({
+          address,
+          metadata: agents[index].metadata,
+          isRouter: agents[index].isRouter
+        }));
+        setAgentData(agentData);
+        console.log(agentData);
+      } catch (error) {
+        console.error("Failed to fetch agent data:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     if (contractInstance) {
       const handleResultReceived = (output, from, to, callbackId) => {
         console.log("Result Received");
-        if(to==walletAddress) {
+        if(to === walletAddress) {
           setAnswer(output);
           setMessages(prevMessages => [...prevMessages, { text: output, sender: 'bot' }]);
         }
@@ -298,17 +91,41 @@ function App() {
         contractInstance.off("agentResponded", handleResultReceived);
       };
     }
-  }, [contractInstance]);
+
+    if (popUp) {
+      const timer = setTimeout(() => {
+        setPopUp(false);
+      }, 7000); 
+      return () => clearTimeout(timer);
+    }
+
+  }, [contractInstance, popUp]);
+
+  const handleOpenMarketplace = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+    fetchAgentData();
+  };
 
   return (
     <div className="App">
       <header className="App-header">
-
-        <h1 className={`Welcome ${isSubmitted ? 'submitted' : ''}`}>Welcome, Thomas.</h1>
-
+        <h1 className={`Welcome ${isSubmitted ? 'submitted' : ''}`}>Welcome to Zarathustra.</h1>
         <button className={`ConnectWalletButton ${walletAddress ? 'connected' : ''}`} onClick={connectWallet}>
           {walletAddress ? `${walletAddress}` : 'Connect Wallet'}
         </button>
+
+        <div className={`openMarketplaceContainer ${isSubmitted ? 'submitted' : ''}`}>
+          <button className="openMarketplaceButton" onClick={handleOpenMarketplace}>Open Marketplace</button>
+          {isDropdownOpen && (
+            <ul className="dropdown-menu">
+              {agentData.map((agent, index) => (
+                <li key={index} className="dropdown-item">
+                  {agent.metadata}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <button className={`SubmitButton ${isSubmitted ? 'submitted' : ''}`} onClick={handleQuerySubmission}>Submit</button>
 
@@ -319,9 +136,9 @@ function App() {
           onChange={(e) => setQueryQuestion(e.target.value)}
         />
 
-          <div className={`Popup ${popUp ? 'submitted' : ''}`}>
-            <h3 className="errorMessage">Error, {errorMessage}</h3>
-          </div>
+        <div className={`Popup ${popUp ? 'submitted' : ''}`}>
+          <h3 className="errorMessage">Error, {errorMessage}</h3>
+        </div>
 
         <div className={`message-container ${isSubmitted ? 'submitted' : ''}`}>
           {messages.map((msg, index) => (
@@ -332,7 +149,6 @@ function App() {
               {msg.text}
             </div>
           ))}
-          
         </div>
       </header>
     </div>
