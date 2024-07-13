@@ -217,7 +217,7 @@ contract.on("agentQueried", async (prompt, to, taskId) => {
 
   console.log("New prompt recieved: ", prompt);
 
-  const routerPrompt = "Split this word into different letters using spaces a seperator: " + prompt;
+  const routerPrompt = "Split this word into different letters using spaces as a seperator: " + prompt;
 
   try {
       const response = await runInference(routerPrompt);
