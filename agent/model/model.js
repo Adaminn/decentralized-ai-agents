@@ -8,58 +8,198 @@ const PINATA_JWT = process.env.PINATA_JWT;
 const WALLET_PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
 
 const abi = [
-    {
-        "inputs": [
+    [
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
             {
-                "internalType": "string",
-                "name": "_query",
-                "type": "string"
-            }
-        ],
-        "name": "queryGPT",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
+              "indexed": false,
+              "internalType": "string",
+              "name": "prompt",
+              "type": "string"
+            },
             {
-                "indexed": false,
-                "internalType": "string",
-                "name": "query",
-                "type": "string"
-            }
-        ],
-        "name": "QuerySent",
-        "type": "event"
-    },
-    {
-        "inputs": [
+              "indexed": false,
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
             {
-                "internalType": "string",
-                "name": "_result",
-                "type": "string"
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "taskId",
+              "type": "uint256"
             }
-        ],
-        "name": "resultGPT",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
+          ],
+          "name": "agentQueried",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
             {
-                "indexed": false,
-                "internalType": "string",
-                "name": "result",
-                "type": "string"
+              "indexed": false,
+              "internalType": "string",
+              "name": "output",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "callbackId",
+              "type": "uint256"
             }
-        ],
-        "name": "ResultReceived",
-        "type": "event"
-    }
+          ],
+          "name": "agentResponed",
+          "type": "event"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "prompt",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "callbackId",
+              "type": "uint256"
+            }
+          ],
+          "name": "queryAgent",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "metadata",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isRouter",
+              "type": "bool"
+            }
+          ],
+          "name": "registerAgent",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "output",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "taskId",
+              "type": "uint256"
+            }
+          ],
+          "name": "respond",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "metadata",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isRouter",
+              "type": "bool"
+            }
+          ],
+          "name": "updateAgent",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "agentMetadata",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "metadata",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isRouter",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "tasks",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "prompt",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "callbackId",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ]
 ];
 
 const contractAddress = "0xDee55f108c99C16e29757c2F7b5dc30934108888";
