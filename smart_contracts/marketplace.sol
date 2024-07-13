@@ -22,6 +22,10 @@ contract Marketplace {
 
     // address of node to ipfs metadata
     mapping(address => Agent) public agentMetadata;
+
+    // store addresses to then be able to traverse the mapping  
+    address[] private agentAddresses;
+
     
     // task id to task data
     mapping(uint256 => Task) public tasks;
@@ -48,6 +52,8 @@ contract Marketplace {
     }
 
     function registerAgent(string memory metadata, bool isRouter) public {
+        require(bytes(agentMetadata[msg.sender].metadata).length == 0, "Agent already exists");
+        agentAddresses.push(msg.sender);
         agentMetadata[msg.sender] = Agent({
             metadata: metadata,
             isRouter: isRouter
@@ -60,5 +66,14 @@ contract Marketplace {
             metadata: metadata,
             isRouter: isRouter
         });
+    }
+
+    function getAllAgentData() public view returns (address[] memory, Agent[] memory) {
+        uint256 length = agentAddresses.length;
+        Agent[] memory agents = new Agent[](length);
+        for (uint256 i = 0; i < length; i++) {
+            agents[i] = agentMetadata[agentAddresses[i]];
+        }
+        return (agentAddresses, agents);
     }
 }
