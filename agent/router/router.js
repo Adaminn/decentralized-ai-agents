@@ -22,11 +22,14 @@ async function main() {
 
     // fetch all the registerd models and their descrition in the contract
     const addressesAndagents = await contract.getAllAgentData();
-    // get rid of our model, so get rid of the record where the address is the same as wallet.address
-    const [addresses, agents]  = addressesAndagents; 
+    const [addressesAll, agentsAll] = addressesAndagents;
+    console.log("All agents: ", addressesAll);
 
+    const otherAgents = addressesAndagents.filter(([address, agentData]) => address !== wallet.address);
 
-    console.log("Agents: ", addresses);
+    const [addresses, agents] = otherAgents;
+
+    console.log("Other agents: ", addresses);
     // this will do console log all items in agents[0]
 
 
