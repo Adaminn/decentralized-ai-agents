@@ -102,16 +102,38 @@
   position: absolute;
   background-color: white;
   border: 0.5px solid rgb(25,30,35);
-  top: 22%;
+  opacity:0;
+  top: 50%;
   height: 50%;
-  left: 1%;
+  left: 25%;
   width: 23%;
   list-style: none;
   padding: 0; /* Remove default padding */
   margin: 0;  /* Remove default margin */
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
-  transition: opacity 1s ease-in-out;
+  transform: translateX(0%); /* Start position outside the viewport */
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition transform and opacity */
+}
+
+.dropdown-menu.submitted {
+  display: inline-block;
+  position: absolute;
+  transform: translateX(25%); /* Slide in to 25% from the right */
+  opacity: 1;
+  background-color: white;
+  border: 0.5px solid rgb(25,30,35);
+  top: 52.5%;
+  height: 40%;
+  opacity:1;
+  left: 22%;
+  width: 23%;
+  list-style: none;
+  padding: 0; /* Remove default padding */
+  margin: 0;  /* Remove default margin */
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  transition: transform 2s ease-in-out, opacity 1s ease-in-out; /* Transition transform and opacity */
 }
 
 .dropdown-item {
@@ -217,16 +239,14 @@
 
 .openMarketplaceButton.submitted {
   opacity: 1;
-  transform: translateX(-200%); 
   transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition transform and opacity */
-  opacity: 1;
 }
 
-.ConnectWalletButton, .TrainButton, .StopButton, .SubmitButton, .openMarketplaceButton {
+.ConnectWalletButton, .TrainButton, .StopButton, .SubmitButton {
   background-color: rgb(25, 30, 35);
   z-index: 100;
   color: white;
-  font-size: 20px;
+  font-size: 13px;
   position: absolute;
   border: none;
   box-shadow: none;
@@ -236,8 +256,26 @@
   padding: 0; /* Remove default padding */
 }
 
+.openMarketplaceButton {
+
+  background-color: rgb(255, 255, 255);
+  border: 0.5px solid rgb(25,30,35);
+  z-index: 100;
+  color: rgb(81, 86, 91);
+  font-size: 13px;
+  position: absolute;
+  box-shadow: none;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+  height: 5%; /* Ensure consistent height */
+  line-height: normal; /* Reset line-height for buttons */
+  padding: 0; /* Remove default padding */
+  cursor: pointer;
+  left: 28%; top: 45%; width: 7%; height: 5%;
+
+}
+
 .NewModel, .ConnectWalletButton {
-  font-size: 20px;
+  font-size: 13px;
 }
 
 .NewModel {
@@ -249,14 +287,8 @@
   right: 9%; top: 5%; width: 12%; height: 5%;
 }
 
-.openMarketplaceButton {
-  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition transform and opacity */
-  cursor: pointer;
-  left: 25%; top: 15%; width: 12%; height: 5%;
-}
-
 .ConnectWalletButton.connected {
-  width: 35%;
+  width: 25%;
 }
 
 .TrainButton, .StopButton {
@@ -279,11 +311,11 @@
 .inputField {
   position: absolute; 
   z-index:100;
-  font-size: 18px;
-  left: 25%;
+  font-size: 13px;
+  left: 35%;
   height: 5%;
   top: 45%;
-  width: 40%;
+  width: 30%;
   outline: none;
   border: 1px solid #ccc; /* Add border for better visibility */
   box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
@@ -311,7 +343,7 @@
 
 .SubmitButton {
   top: 45%;
-  
+  font-size: 13px;
   transition: top 2s ease-in-out;
 }
 
@@ -323,8 +355,12 @@
   top: -50%;
 }
 
-.TrainButton:hover, .SubmitButton:hover, .CancelButton:hover, .NewModel:hover, .ConnectWalletButton:hover, .openMarketplaceButton:hover {
+.TrainButton:hover, .SubmitButton:hover, .CancelButton:hover, .NewModel:hover, .ConnectWalletButton:hover {
   background-color: rgb(40, 45, 55);
+}
+
+.openMarketplaceButton:hover {
+  background-color: rgba(235, 242, 254, 0.8);
 }
 
 .ModelList .Model, .OwnerList .Model, .PerformerList .Model, .AttestationList .Model {

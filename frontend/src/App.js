@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import axios from 'axios';
 const { ethers } = require('ethers');
 
 function App() {
@@ -76,6 +75,7 @@ function App() {
     }
   };
 
+  /*
   const fetchDataFromIPFS = async (ipfsLink) => {
     try {
       const response = await axios.get(`https://ipfs.io/ipfs/${ipfsLink}`);
@@ -83,6 +83,7 @@ function App() {
       console.error("Failed to fetch data from IPFS:", error);
     }
   };
+  */
 
   useEffect(() => {
     if (contractInstance) {
@@ -111,8 +112,13 @@ function App() {
   }, [contractInstance, popUp]);
 
   const handleOpenMarketplace = () => {
+    if(signer) {
     setIsDropdownOpen(!isDropdownOpen);
     fetchAgentData();
+    } else{
+      setErrorMessage("please connect wallet.");
+      setPopUp(true);
+    }
   };
 
   return (
@@ -124,11 +130,9 @@ function App() {
         </button>
 
         <div className={`openMarketplaceContainer ${isSubmitted ? 'submitted' : ''}`}>
-        <button className={`openMarketplaceButton ${isDropdownOpen ? 'submitted' : ''}`} onClick={handleOpenMarketplace}>
-        {isDropdownOpen ? 'Close Marketplace' : 'Open Marketplace'}
-      </button>
+        <button className={`openMarketplaceButton ${isDropdownOpen ? 'submitted' : ''}`} onClick={handleOpenMarketplace}>Marketplace</button>
           {isDropdownOpen && (
-            <ul className="dropdown-menu">
+            <ul className={`dropdown-menu ${isDropdownOpen ? 'submitted' : ''}`}>
               {agentData.map((agent, index) => (
                 <li key={index} className="dropdown-item">
                   <div className="routerName">{agent.metadata}</div>
