@@ -212,10 +212,11 @@ console.log("Listening for query events...");
 
 
 // fetch all the registerd models and their descrition in the contract
-const modelsIpfs = contract.getModelsIpfs();
+const agents = contract.getAllAgentData();
 
 // retrive the data saved on model ipfs and sotre it into array for each ipfs in modelsIpfs array
-const models = modelsIpfs.map(async (ipfs) => {
+const models = agents.map(async (agent) => {
+    const ipfs = agent.metadata;
     const res = await axios.get(`https://gateway.pinata.cloud/ipfs/${ipfs}`);
     return res.data;
 })
