@@ -102,14 +102,102 @@
   position: absolute;
   background-color: white;
   border: 0.5px solid rgb(25,30,35);
-  top: 18%;
-  left: 25%;
-  min-width: 160px;
+  top: 22%;
+  height: 50%;
+  left: 1%;
+  width: 23%;
   list-style: none;
+  padding: 0; /* Remove default padding */
+  margin: 0;  /* Remove default margin */
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 1s ease-in-out;
 }
+
+.dropdown-item {
+  border: 0.5px solid rgb(25, 30, 35);
+  display: block;
+  height: 20%;
+  width: 100%;
+  color: rgb(25,30,35);
+  padding: 15px; /* Add padding for better spacing */
+  box-sizing: border-box; /* Ensure padding is included in the element's total width */
+  margin: 0; /* Ensure there's no additional margin */
+  transition: background-color 0.3s ease-in-out; /* Fade-in transition */
+  cursor: pointer;
+  font-size: 16px; /* Adjust font size as needed */
+}
+
+.routerName {
+  position: absolute;
+  font-weight: 1000;
+  font-size: 18px; /* Adjust font size as needed */
+  top: 3%;
+  left: 5%;
+}
+
+.routerReputation {
+  position: absolute;
+  width: 10%;
+  left: 82.5%;
+  height: 12%;
+}
+
+.point1 {
+  position: absolute;
+  background-color: green;
+  top: 10%;
+  width: 80%;
+  left: 10%;
+  height: 20%;
+  border: 0.5px solid black;
+}
+
+.point2 {
+  position: absolute;
+  background-color: green;
+  top: 40%;
+  width: 80%;
+  left: 10%;
+  height: 20%;
+  border: 0.5px solid black;
+}
+
+.point3 {
+  position: absolute;
+  background-color: green;
+  top: 70%;
+  width: 80%;
+  left: 10%;
+  height: 20%;
+  border: 0.5px solid black;
+}
+
+.routerDescription {
+  position: absolute;
+  text-align: left;
+  width: 60%;
+  height: 7%;
+  font-size: 12px; /* Adjust font size as needed */
+  top: 9%;
+  left: 5%;
+}
+
+.routerPrice {
+  position: absolute;
+  text-align: left;
+  width: 60%;
+  height: 7%;
+  font-size: 20px; /* Adjust font size as needed */
+  top: 7%;
+  left: 60%;
+}
+
+
+.dropdown-item:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* Change background color on hover */
+}
+
 
 .ModelList { width: 80%; height: 40%; left: 10%; top: 56%; font-size: 30px; }
 .OwnerList, .PerformerList, .AttestationList {
@@ -127,12 +215,10 @@
   filter: blur(5px);
 }
 
-.openMarketplaceContainer {
-  opacity: 0;
-}
-
-.openMarketplaceContainer.submitted {
-  transition: opacity 2s ease-in-out;
+.openMarketplaceButton.submitted {
+  opacity: 1;
+  transform: translateX(-200%); 
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition transform and opacity */
   opacity: 1;
 }
 
@@ -164,6 +250,7 @@
 }
 
 .openMarketplaceButton {
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition transform and opacity */
   cursor: pointer;
   left: 25%; top: 15%; width: 12%; height: 5%;
 }
@@ -209,13 +296,6 @@
   outline: none;
 }
 
-.dropdown-item {
-
-  border: 0.5px solid rgb(25,30,35);
-  width: 100%;
-
-}
-
 .answer {
   color: rgb(26, 17, 83);
   top: 50%;
@@ -243,7 +323,7 @@
   top: -50%;
 }
 
-.TrainButton:hover, .SubmitButton:hover, .CancelButton:hover, .NewModel:hover, .ConnectWalletButton:hover {
+.TrainButton:hover, .SubmitButton:hover, .CancelButton:hover, .NewModel:hover, .ConnectWalletButton:hover, .openMarketplaceButton:hover {
   background-color: rgb(40, 45, 55);
 }
 
