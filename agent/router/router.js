@@ -22,19 +22,18 @@ async function main() {
     // fetch all the registerd models and their descrition in the contract
     const [addresses, agents] = await contract.getAllAgentData();
 
-
-
     console.log("Agents: ", addresses);
     // this will do console log all items in agents[0]
 
 
     // retrive the data saved on model ipfs and sotre it into array for each ipfs in modelsIpfs array
+    /*
     const models = agents.map(async (agent) => {
         const ipfs = agent.metadata;
         const res = await axios.get(`https://gateway.pinata.cloud/ipfs/${ipfs}`);
         return res.data;
     })
-
+    */
     // model is a json that has a description, price, and an address where you can prompt it
 
     const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
@@ -48,8 +47,6 @@ async function main() {
     let lastCallbackId = 0;
 
     const callbackToTask = {};
-
-    const tasks = {};
 
     // get count of the models
     const modelCount = models.length;
