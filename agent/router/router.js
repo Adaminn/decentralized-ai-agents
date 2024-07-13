@@ -25,13 +25,22 @@ async function main() {
     // fetch all the registerd models and their descrition in the contract
     const addressesAndagents = await contract.getAllAgentData();
     const [addressesAll, agentsAll] = addressesAndagents;
+
     console.log("All agents: ", addressesAll);
+    console.log("All agents: ", agentsAll);
+    
+    // Combine addresses and agents into a single array of tuples
+    const combinedAgents = addressesAll.map((address, index) => [address, agentsAll[index]]);
+    
+    // Filter out the wallet address
+    const otherAgents = combinedAgents.filter(([address, agentData]) => address !== wallet.address);
+    
 
-    const otherAgents = addressesAndagents.filter(([address, agentData]) => address !== wallet.address);
-
-    const [addresses, agents] = otherAgents;
+    const addresses = otherAgents.map(([address, agentData]) => address);
+    const agents = otherAgents.map(([address, agentData]) => agentData);
 
     console.log("Other agents: ", addresses);
+    console.log("Other agents: ", agents);
     // this will do console log all items in agents[0]
 
 
@@ -43,12 +52,13 @@ async function main() {
         return res.data;
     })
     */
-    const models = agents.map(agent => agent.metadata);
+    const metadatas = agents.map(agent => agent.metadata);
 
-    const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
+    const modelDescriptions = metadatas.map((metadata, index) => `${index + 1}. ${metadata}`).join(", "); 
+    console.log("Model descriptions with ordinals: ",modelDescriptions);
 
-    const agentAddresses = addresses.map((agent, index) => ({ [index + 1]: agent.address }));
-
+    const agentAddresses = addresses.map((address, index) => ({ [index + 1]: address }));
+    console.log("Addressess with ordinals: ", agentAddresses);
 
     // save history for each query for specific task id
     const callbacksState = {};

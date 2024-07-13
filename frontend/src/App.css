@@ -217,7 +217,6 @@
 
 .openMarketplaceButton.submitted {
   opacity: 1;
-  transform: translateX(-200%); 
   transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition transform and opacity */
   opacity: 1;
 }
@@ -246,12 +245,13 @@
 
 .ConnectWalletButton {
   cursor: pointer;
-  right: 9%; top: 5%; width: 12%; height: 5%;
+  right: 4%; top: 5%; width: 12%; height: 5%;
 }
 
 .openMarketplaceButton {
   transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Transition transform and opacity */
   cursor: pointer;
+  opacity: 0;
   left: 25%; top: 15%; width: 12%; height: 5%;
 }
 

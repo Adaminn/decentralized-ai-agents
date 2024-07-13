@@ -124,7 +124,7 @@ function App() {
         </button>
 
         <div className={`openMarketplaceContainer ${isSubmitted ? 'submitted' : ''}`}>
-        <button className={`openMarketplaceButton ${isDropdownOpen ? 'submitted' : ''}`} onClick={handleOpenMarketplace}>
+        <button className={`openMarketplaceButton ${isSubmitted ? 'submitted' : ''}`} onClick={handleOpenMarketplace}>
         {isDropdownOpen ? 'Close Marketplace' : 'Open Marketplace'}
       </button>
           {isDropdownOpen && (
