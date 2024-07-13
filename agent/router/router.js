@@ -34,22 +34,22 @@ const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.de
 // get count of the models
 const modelCount = models.length;
 
-const history = ""
-const firstRun = true;
+let history = ""
+let secondRun = false;
 
 contract.on("QuerySent", async (prompt, event) => {
     console.log("New query received:");
     console.log("prompt:", prompt);
     history = prompt;
 
-    if (firstRun) {
-        firstRun = false;
-        return;
+    if (secondRun) {
+        secondRun = false;
     }
     const routerPrompt = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + " The description with their ordinal number are: " + modelDescriptions + ". Reply just with the ordinal number. Nothing else! Strictly just the ONE number!"
 
     try {
         const response = await runInference(routerPrompt);
+        secondRun = true;
         console.log("Generated text:", response);
 
         // get the first number from the response
