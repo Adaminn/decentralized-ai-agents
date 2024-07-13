@@ -7,200 +7,7 @@ const HF_API_TOKEN = process.env.HF_API_TOKEN;
 const PINATA_JWT = process.env.PINATA_JWT;
 const WALLET_PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
 
-const abi = [
-    [
-        {
-          "inputs": [],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "prompt",
-              "type": "string"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "to",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "taskId",
-              "type": "uint256"
-            }
-          ],
-          "name": "agentQueried",
-          "type": "event"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": false,
-              "internalType": "string",
-              "name": "output",
-              "type": "string"
-            },
-            {
-              "indexed": false,
-              "internalType": "address",
-              "name": "to",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "callbackId",
-              "type": "uint256"
-            }
-          ],
-          "name": "agentResponed",
-          "type": "event"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "prompt",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "to",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "callbackId",
-              "type": "uint256"
-            }
-          ],
-          "name": "queryAgent",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "metadata",
-              "type": "string"
-            },
-            {
-              "internalType": "bool",
-              "name": "isRouter",
-              "type": "bool"
-            }
-          ],
-          "name": "registerAgent",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "output",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "taskId",
-              "type": "uint256"
-            }
-          ],
-          "name": "respond",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "metadata",
-              "type": "string"
-            },
-            {
-              "internalType": "bool",
-              "name": "isRouter",
-              "type": "bool"
-            }
-          ],
-          "name": "updateAgent",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "name": "agentMetadata",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "metadata",
-              "type": "string"
-            },
-            {
-              "internalType": "bool",
-              "name": "isRouter",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "name": "tasks",
-          "outputs": [
-            {
-              "internalType": "string",
-              "name": "prompt",
-              "type": "string"
-            },
-            {
-              "internalType": "address",
-              "name": "to",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
-              "name": "from",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "callbackId",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        }
-      ]
-];
+const abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"prompt","type":"string"},{"indexed":false,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"taskId","type":"uint256"}],"name":"agentQueried","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"output","type":"string"},{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"callbackId","type":"uint256"}],"name":"agentResponded","type":"event"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"agentMetadata","outputs":[{"internalType":"string","name":"metadata","type":"string"},{"internalType":"bool","name":"isRouter","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getAllAgentData","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"components":[{"internalType":"string","name":"metadata","type":"string"},{"internalType":"bool","name":"isRouter","type":"bool"}],"internalType":"struct Marketplace.Agent[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"prompt","type":"string"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"callbackId","type":"uint256"}],"name":"queryAgent","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"metadata","type":"string"},{"internalType":"bool","name":"isRouter","type":"bool"}],"name":"registerAgent","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"output","type":"string"},{"internalType":"uint256","name":"taskId","type":"uint256"}],"name":"respond","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"tasks","outputs":[{"internalType":"string","name":"prompt","type":"string"},{"internalType":"address","name":"to","type":"address"},{"internalType":"address","name":"from","type":"address"},{"internalType":"uint256","name":"callbackId","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"metadata","type":"string"},{"internalType":"bool","name":"isRouter","type":"bool"}],"name":"updateAgent","outputs":[],"stateMutability":"nonpayable","type":"function"}];
 
 const contractAddress = "0xA4e631D4008c51A026628AB5EA7A0dCdFA89F5b4";
 const providerUrl = "https://sepolia.infura.io/v3/77065ab8cf2247e6aa92c57f31efdcfd";
@@ -214,8 +21,12 @@ console.log("Listening for query events...");
 // fetch all the registerd models and their descrition in the contract
 const agents = contract.getAllAgentData();
 
+console.log("Agents: ", agents[0]);
+// this will do console log all items in agents[0]
+
+
 // retrive the data saved on model ipfs and sotre it into array for each ipfs in modelsIpfs array
-const models = agents.map(async (agent) => {
+const models = agents[1].map(async (agent) => {
     const ipfs = agent.metadata;
     const res = await axios.get(`https://gateway.pinata.cloud/ipfs/${ipfs}`);
     return res.data;
@@ -226,8 +37,16 @@ const models = agents.map(async (agent) => {
 const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
 
 // this creates a map where the ordinal number starting from one is key and the value is the agent.address. agent is one agent from the agents array
-const agentAddresses = agents.map((agent, index) => ({ [index + 1]: agent.address }));
+const agentAddresses = agents[0].map((agent, index) => ({ [index + 1]: agent.address }));
 
+
+// save history for each query for specific task id
+const callbacksState = {};
+let lastCallbackId = 0;
+
+const callbackToTask = {};
+
+const tasks = {};
 
 // get count of the models
 const modelCount = models.length;
@@ -244,7 +63,7 @@ contract.on("agentQueried", async (prompt, to, taskId) => {
     try {
         const response = await runInference(routerPrompt);
 
-        console.log("Generated text:", response);
+        console.log("Generated text: ", response);
 
         // get the first number from the response
         const number = response.match(/\d+/)[0];
@@ -257,8 +76,10 @@ contract.on("agentQueried", async (prompt, to, taskId) => {
 
         const agentAddress = agentAddresses[responseInt];
 
-        // send the prompt to the agent specified by agentEndpoint. Callback will be added in the SC
-        const tx = await contract.queryAgent(prompt, agentAddress, 0);
+        const callbackId = lastCallbackId++ ;
+        const tx = await contract.queryAgent(prompt, agentAddress, callbackId);
+        callbacksState[callbackId] = prompt;
+        callbackToTask[callbackId] = taskId;
         await tx.wait();
         console.log("Transaction successful");
 
@@ -273,26 +94,26 @@ contract.on("agentResponded", async (output, to, callbackId) => {
         return;
     }
 
-    console.log("New response recieved:", output);
+    console.log("Result recieved (context: " + callbackId, + "): ", output);
+
+    const history = callbacksState[callbackId];
+    const taskId = callbackToTask[callbackId];
+
+    const routerPrompt = "User submited this query: " + history + 
+    ". The answer to this query from an assitent who is expert on this field is: " + output + 
+    ". Whit all this information, respond to the user query.";
 
     try {
-        const tx = await contract.respond(output, callbackId);
+        const response = await runInference(routerPrompt);
+
+        console.log("Respond of the router after considering the help of other agent: ", response);
+        const tx = await contract.respond(response, taskId);
         await tx.wait();
         console.log("Transaction successful");
     } catch (error) {
         console.error("Error handling response event:", error);
     }
 });
-
-const handleResultSubmission = async (output) => {
-    try {
-        const tx = await contract.resultGPT(output);
-        await tx.wait();
-        console.log("Transaction successful");
-    } catch (error) {
-        console.error("Error submitting answer", error);
-    }
-};
 
 async function runInference(prompt) {
     const hf = new HfInference(HF_API_TOKEN); 
