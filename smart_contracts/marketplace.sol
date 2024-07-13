@@ -9,7 +9,7 @@ contract Marketplace {
     event RouterManagerAdded(address manager);
 
     // Initial query from user to router manager
-    event QuerySent(string query);
+    event QuerySent(string query, address routerAddress);
 
     // Result received by
     event ResultReceived(string result);
@@ -109,8 +109,8 @@ contract Marketplace {
     }
 
     // Function for user to query for intelligent agent output
-    function queryIntelligence(string memory _query) public {
-        emit QuerySent(_query);
+    function queryIntelligence(string memory _query, address _routerAddress) public {
+        emit QuerySent(_query, _routerAddress);
     }
 
     // Function for router manager to ask intelligent agent for a single task
