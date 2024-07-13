@@ -202,7 +202,7 @@ const abi = [
       ]
 ];
 
-const contractAddress = "TOOD: registerd ai agents contract address";
+const contractAddress = "0xA4e631D4008c51A026628AB5EA7A0dCdFA89F5b4";
 const providerUrl = "https://sepolia.infura.io/v3/77065ab8cf2247e6aa92c57f31efdcfd";
 const provider = new ethers.providers.JsonRpcProvider(providerUrl);
 const contract = new ethers.Contract(contractAddress, abi, provider);
@@ -225,8 +225,9 @@ const models = agents.map(async (agent) => {
 
 const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
 
-// model addresses with their ordinal number
-const modelAdresses = agents.map((model, index) => `${index + 1}. ${model.address}`).join(", ");
+// this creates a map where the ordinal number starting from one is key and the value is the agent.address. agent is one agent from the agents array
+const agentAddresses = agents.map((agent, index) => ({ [index + 1]: agent.address }));
+
 
 // get count of the models
 const modelCount = models.length;
@@ -254,15 +255,32 @@ contract.on("agentQueried", async (prompt, to, taskId) => {
             throw new Error("Invalid response");
         }
 
-        const agentEndpoint = models[responseInt - 1].endpoint;
+        const agentAddress = agentAddresses[responseInt];
 
         // send the prompt to the agent specified by agentEndpoint. Callback will be added in the SC
-        const tx = await contract.queryIntelligence(prompt, agentEndpoint);
+        const tx = await contract.queryAgent(prompt, agentAddress, 0);
         await tx.wait();
         console.log("Transaction successful");
 
     } catch (error) {
         console.error("Error handling query event:", error);
+    }
+});
+
+// listen to the agentResponded event
+contract.on("agentResponded", async (output, to, callbackId) => {
+    if (to !== contract.address) {
+        return;
+    }
+
+    console.log("New response recieved:", output);
+
+    try {
+        const tx = await contract.respond(output, callbackId);
+        await tx.wait();
+        console.log("Transaction successful");
+    } catch (error) {
+        console.error("Error handling response event:", error);
     }
 });
 
