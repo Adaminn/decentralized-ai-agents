@@ -226,7 +226,7 @@ const models = agents.map(async (agent) => {
 const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
 
 // model addresses with their ordinal number
-const modelAdresses = models.map((model, index) => `${index + 1}. ${model.address}`).join(", ");
+const modelAdresses = agents.map((model, index) => `${index + 1}. ${model.address}`).join(", ");
 
 // get count of the models
 const modelCount = models.length;
