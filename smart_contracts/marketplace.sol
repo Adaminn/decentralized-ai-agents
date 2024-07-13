@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Agents {
+contract Marketplace {
 
     event agentQueried(string prompt, address to, uint256 taskId);
-    event agentResponed(string output, address to, uint256 callbackId);
+    event agentResponded(string output, address indexed from, address indexed to, uint256 callbackId);
 
     struct Task {
         string prompt;
@@ -44,10 +44,9 @@ contract Agents {
 
     function respond(string memory output, uint256 taskId) public {
         require(tasks[taskId].to == msg.sender, "Only the agent creator can respond to a task");
-        emit agentResponed(output, tasks[taskId].from, tasks[taskId].callbackId);
+        emit agentResponded(output, msg.sender, tasks[taskId].from, tasks[taskId].callbackId);
     }
 
-    //register new agent
     function registerAgent(string memory metadata, bool isRouter) public {
         agentMetadata[msg.sender] = Agent({
             metadata: metadata,

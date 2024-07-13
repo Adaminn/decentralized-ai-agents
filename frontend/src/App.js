@@ -3,76 +3,76 @@ import './App.css';
 const { ethers } = require('ethers');
 
 function App() {
-
   const [walletAddress, setWalletAddress] = useState('');
+  const [selectedAgentAddress, setSelectedAgentAddress] = useState('');
   const [signer, setSigner] = useState(null);
   const [provider, setProvider] = useState(null);
-  const [popUp, setPopUp] = useState(null);
   const [queryQuestion, setQueryQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [popUp, setPopUp] = useState(false);
   const [contractInstance, setContractInstance] = useState(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const abi = [
+    {
+      "inputs": [
         {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "_query",
-                    "type": "string"
-                }
-            ],
-            "name": "queryGPT",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "string",
-                    "name": "query",
-                    "type": "string"
-                }
-            ],
-            "name": "QuerySent",
-            "type": "event"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "string",
-                    "name": "_result",
-                    "type": "string"
-                }
-            ],
-            "name": "resultGPT",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "string",
-                    "name": "result",
-                    "type": "string"
-                }
-            ],
-            "name": "ResultReceived",
-            "type": "event"
+          "internalType": "string",
+          "name": "_query",
+          "type": "string"
         }
-];
+      ],
+      "name": "queryGPT",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "query",
+          "type": "string"
+        }
+      ],
+      "name": "QuerySent",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_result",
+          "type": "string"
+        }
+      ],
+      "name": "resultGPT",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "result",
+          "type": "string"
+        }
+      ],
+      "name": "ResultReceived",
+      "type": "event"
+    }
+  ];
 
-  const ethers = require("ethers");
+  const contractAddress = '0xb1A0fF77d13b07A3d70ADA2687EB6802B1207fC1';
 
-  const contractAddress = '0xDee55f108c99C16e29757c2F7b5dc30934108888';
-  
   const connectWallet = async () => {
-
     if (typeof window.ethereum !== 'undefined') {
       try {
         await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -82,9 +82,7 @@ function App() {
         setSigner(signer);
         setContractInstance(new ethers.Contract(contractAddress, abi, signer));
         const address = await signer.getAddress();
-
         setWalletAddress(address);
-
       } catch (error) {
         console.error("User denied account access or an error occurred:", error);
       }
@@ -93,31 +91,37 @@ function App() {
     }
   };
 
-  const submitQuery = async () => {
-    setPopUp(true);
-  };
-
   const handleQuerySubmission = async () => {
     if (signer) {
       try {
-        const tx = await contractInstance.queryGPT(queryQuestion);
-        setPopUp(false);
+        const tx = await contractInstance.queryAgent(queryQuestion, selectedAgentAddress, 0);
+        setIsSubmitted(true);
+        setMessages(prevMessages => [...prevMessages, { text: queryQuestion, sender: 'user' }]);
+        setQueryQuestion('');
         await tx.wait();
       } catch (error) {
-        console.error("Error submitting query", error);
+        setErrorMessage("transaction failed.");
       }
+    } else {
+      setErrorMessage("wallet not connected.");
+      setPopUp(true);
     }
   };
 
   useEffect(() => {
     if (contractInstance) {
-
       const handleResultReceived = (result, event) => {
         console.log("Result Received");
         setAnswer(result);
+        setMessages(prevMessages => [...prevMessages, { text: result, sender: 'bot' }]);
       };
 
-      contractInstance.on("ResultReceived", handleResultReceived);
+      contractInstance.on("agentResponed", handleResultReceived);
+
+      // Clean up the event listener when the component is unmounted
+      return () => {
+        contractInstance.off("ResultReceived", handleResultReceived);
+      };
     }
   }, [contractInstance]);
 
@@ -125,29 +129,37 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1 className="Title">Zarathustra Experiment ❤️</h1>
-  
+
+        <h1 className={`Welcome ${isSubmitted ? 'submitted' : ''}`}>Welcome, Thomas.</h1>
+
         <button className={`ConnectWalletButton ${walletAddress ? 'connected' : ''}`} onClick={connectWallet}>
           {walletAddress ? `${walletAddress}` : 'Connect Wallet'}
         </button>
 
-        {popUp && (
-          <div className="Popup">
-            <h3>Enter GPT Question</h3>
-            <input
-              className="inputField"
-              type="text"
-              value={queryQuestion}
-              onChange={(e) => setQueryQuestion(e.target.value)}
-            />
-            <button className="SubmitButton" onClick={handleQuerySubmission}>Submit</button>
-            <button className="CancelButton" onClick={() => setPopUp(false)}>Cancel</button>
+        <button className={`SubmitButton ${isSubmitted ? 'submitted' : ''}`} onClick={handleQuerySubmission}>Submit</button>
+
+        <input
+          className={`inputField ${isSubmitted ? 'submitted' : ''}`}
+          type="text"
+          value={queryQuestion}
+          onChange={(e) => setQueryQuestion(e.target.value)}
+        />
+
+          <div className={`Popup ${popUp ? 'submitted' : ''}`}>
+            <h3 className="errorMessage">Error, {errorMessage}</h3>
           </div>
-        )}
 
-        <h1 className="answer">Answer: {answer}</h1>
-  
-        <button className="NewModel" onClick={submitQuery}>Submit New Query</button>
-
+        <div className={`message-container ${isSubmitted ? 'submitted' : ''}`}>
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`message-bubble ${msg.sender === 'user' ? 'user-message' : 'answer-message'}`}
+            >
+              {msg.text}
+            </div>
+          ))}
+          
+        </div>
       </header>
     </div>
   );
