@@ -220,29 +220,28 @@ const models = modelsIpfs.map(async (ipfs) => {
     return res.data;
 })
 
-// model is a json that has a description, price, and an endpoint where you can prompt it (after you deposite the price in the contract)
+// model is a json that has a description, price, and an address where you can prompt it
 
 const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
+
+// model addresses with their ordinal number
+const modelAdresses = models.map((model, index) => `${index + 1}. ${model.address}`).join(", ");
 
 // get count of the models
 const modelCount = models.length;
 
-let history = ""
-let secondRun = false;
-
-contract.on("QuerySent", async (prompt, event) => {
-    console.log("New query received:");
-    console.log("prompt:", prompt);
-    history = prompt;
-
-    if (secondRun) {
-        secondRun = false;
+contract.on("agentQueried", async (prompt, to, taskId) => {
+    if ( to !== contract.address) {
+        return;
     }
+
+    console.log("New prompt recieved:", prompt);
+
     const routerPrompt = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + " The description with their ordinal number are: " + modelDescriptions + ". Reply just with the ordinal number. Nothing else! Strictly just the ONE number!"
 
     try {
         const response = await runInference(routerPrompt);
-        secondRun = true;
+
         console.log("Generated text:", response);
 
         // get the first number from the response
