@@ -17,17 +17,9 @@ function App() {
 
   const abi = [
     {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "_query",
-          "type": "string"
-        }
-      ],
-      "name": "queryGPT",
-      "outputs": [],
+      "inputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
+      "type": "constructor"
     },
     {
       "anonymous": false,
@@ -35,25 +27,24 @@ function App() {
         {
           "indexed": false,
           "internalType": "string",
-          "name": "query",
+          "name": "prompt",
           "type": "string"
-        }
-      ],
-      "name": "QuerySent",
-      "type": "event"
-    },
-    {
-      "inputs": [
+        },
         {
-          "internalType": "string",
-          "name": "_result",
-          "type": "string"
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "taskId",
+          "type": "uint256"
         }
       ],
-      "name": "resultGPT",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
+      "name": "agentQueried",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -61,16 +52,199 @@ function App() {
         {
           "indexed": false,
           "internalType": "string",
-          "name": "result",
+          "name": "output",
           "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "callbackId",
+          "type": "uint256"
         }
       ],
-      "name": "ResultReceived",
+      "name": "agentResponded",
       "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "prompt",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "callbackId",
+          "type": "uint256"
+        }
+      ],
+      "name": "queryAgent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "isRouter",
+          "type": "bool"
+        }
+      ],
+      "name": "registerAgent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "output",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "taskId",
+          "type": "uint256"
+        }
+      ],
+      "name": "respond",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "isRouter",
+          "type": "bool"
+        }
+      ],
+      "name": "updateAgent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "agentMetadata",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "isRouter",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAllAgentData",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "metadata",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isRouter",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct Marketplace.Agent[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "tasks",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "prompt",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "callbackId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
   ];
 
-  const contractAddress = '0xb1A0fF77d13b07A3d70ADA2687EB6802B1207fC1';
+  const contractAddress = '0xA4e631D4008c51A026628AB5EA7A0dCdFA89F5b4';
 
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
@@ -110,17 +284,18 @@ function App() {
 
   useEffect(() => {
     if (contractInstance) {
-      const handleResultReceived = (result, event) => {
+      const handleResultReceived = (output, from, to, callbackId) => {
         console.log("Result Received");
-        setAnswer(result);
-        setMessages(prevMessages => [...prevMessages, { text: result, sender: 'bot' }]);
+        if(to==walletAddress) {
+          setAnswer(output);
+          setMessages(prevMessages => [...prevMessages, { text: output, sender: 'bot' }]);
+        }
       };
 
-      contractInstance.on("agentResponed", handleResultReceived);
+      contractInstance.on("agentResponded", handleResultReceived);
 
-      // Clean up the event listener when the component is unmounted
       return () => {
-        contractInstance.off("ResultReceived", handleResultReceived);
+        contractInstance.off("agentResponded", handleResultReceived);
       };
     }
   }, [contractInstance]);
@@ -128,7 +303,6 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1 className="Title">Zarathustra Experiment ❤️</h1>
 
         <h1 className={`Welcome ${isSubmitted ? 'submitted' : ''}`}>Welcome, Thomas.</h1>
 
