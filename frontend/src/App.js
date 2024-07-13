@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import axios from 'axios';
 const { ethers } = require('ethers');
 
 function App() {
@@ -75,6 +76,14 @@ function App() {
     }
   };
 
+  const fetchDataFromIPFS = async (ipfsLink) => {
+    try {
+      const response = await axios.get(`https://ipfs.io/ipfs/${ipfsLink}`);
+    } catch (error) {
+      console.error("Failed to fetch data from IPFS:", error);
+    }
+  };
+
   useEffect(() => {
     if (contractInstance) {
       const handleResultReceived = (output, from, to, callbackId) => {
@@ -115,12 +124,21 @@ function App() {
         </button>
 
         <div className={`openMarketplaceContainer ${isSubmitted ? 'submitted' : ''}`}>
-          <button className="openMarketplaceButton" onClick={handleOpenMarketplace}>Open Marketplace</button>
+        <button className={`openMarketplaceButton ${isDropdownOpen ? 'submitted' : ''}`} onClick={handleOpenMarketplace}>
+        {isDropdownOpen ? 'Close Marketplace' : 'Open Marketplace'}
+      </button>
           {isDropdownOpen && (
             <ul className="dropdown-menu">
               {agentData.map((agent, index) => (
                 <li key={index} className="dropdown-item">
-                  {agent.metadata}
+                  <div className="routerName">{agent.metadata}</div>
+                  <div className="routerDescription">{agent.metadata}</div>
+                  <div className="routerPrice">4 Eth</div>
+                  <div className="routerReputation">
+                    <div className="point1"></div>
+                    <div className="point2"></div>
+                    <div className="point3"></div>
+                  </div>
                 </li>
               ))}
             </ul>
