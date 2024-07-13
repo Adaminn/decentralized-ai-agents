@@ -13,6 +13,7 @@ const contractAddress = "0xA4e631D4008c51A026628AB5EA7A0dCdFA89F5b4";
 const providerUrl = "https://sepolia.infura.io/v3/77065ab8cf2247e6aa92c57f31efdcfd";
 const provider = new ethers.providers.JsonRpcProvider(providerUrl);
 const contract = new ethers.Contract(contractAddress, abi, provider);
+const wallet = new ethers.Wallet(WALLET_PRIVATE_KEY, provider);
 
 console.log("Listening for query events...");
 
@@ -20,26 +21,30 @@ console.log("Listening for query events...");
 async function main() {
 
     // fetch all the registerd models and their descrition in the contract
-    const [addresses, agents] = await contract.getAllAgentData();
+    const addressesAndagents = await contract.getAllAgentData();
+    const [addressesAll, agentsAll] = addressesAndagents;
+    console.log("All agents: ", addressesAll);
 
+    const otherAgents = addressesAndagents.filter(([address, agentData]) => address !== wallet.address);
 
+    const [addresses, agents] = otherAgents;
 
-    console.log("Agents: ", addresses);
+    console.log("Other agents: ", addresses);
     // this will do console log all items in agents[0]
 
 
     // retrive the data saved on model ipfs and sotre it into array for each ipfs in modelsIpfs array
+    /*
     const models = agents.map(async (agent) => {
         const ipfs = agent.metadata;
         const res = await axios.get(`https://gateway.pinata.cloud/ipfs/${ipfs}`);
         return res.data;
     })
-
-    // model is a json that has a description, price, and an address where you can prompt it
+    */
+    const models = agents.map(agent => agent.metadata);
 
     const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
 
-    // this creates a map where the ordinal number starting from one is key and the value is the agent.address. agent is one agent from the agents array
     const agentAddresses = addresses.map((agent, index) => ({ [index + 1]: agent.address }));
 
 
@@ -48,8 +53,6 @@ async function main() {
     let lastCallbackId = 0;
 
     const callbackToTask = {};
-
-    const tasks = {};
 
     // get count of the models
     const modelCount = models.length;
