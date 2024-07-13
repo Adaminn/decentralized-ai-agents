@@ -17,152 +17,158 @@ const contract = new ethers.Contract(contractAddress, abi, provider);
 console.log("Listening for query events...");
 
 
+async function main() {
 
-// fetch all the registerd models and their descrition in the contract
-const agents = contract.getAllAgentData();
-
-console.log("Agents: ", agents[0]);
-// this will do console log all items in agents[0]
+    // fetch all the registerd models and their descrition in the contract
+    const [addresses, agents] = await contract.getAllAgentData();
 
 
-// retrive the data saved on model ipfs and sotre it into array for each ipfs in modelsIpfs array
-const models = agents[1].map(async (agent) => {
-    const ipfs = agent.metadata;
-    const res = await axios.get(`https://gateway.pinata.cloud/ipfs/${ipfs}`);
-    return res.data;
-})
 
-// model is a json that has a description, price, and an address where you can prompt it
-
-const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
-
-// this creates a map where the ordinal number starting from one is key and the value is the agent.address. agent is one agent from the agents array
-const agentAddresses = agents[0].map((agent, index) => ({ [index + 1]: agent.address }));
+    console.log("Agents: ", addresses);
+    // this will do console log all items in agents[0]
 
 
-// save history for each query for specific task id
-const callbacksState = {};
-let lastCallbackId = 0;
+    // retrive the data saved on model ipfs and sotre it into array for each ipfs in modelsIpfs array
+    const models = agents.map(async (agent) => {
+        const ipfs = agent.metadata;
+        const res = await axios.get(`https://gateway.pinata.cloud/ipfs/${ipfs}`);
+        return res.data;
+    })
 
-const callbackToTask = {};
+    // model is a json that has a description, price, and an address where you can prompt it
 
-const tasks = {};
+    const modelDescriptions = models.map((model, index) => `${index + 1}. ${model.description}`).join(", "); 
 
-// get count of the models
-const modelCount = models.length;
+    // this creates a map where the ordinal number starting from one is key and the value is the agent.address. agent is one agent from the agents array
+    const agentAddresses = addresses.map((agent, index) => ({ [index + 1]: agent.address }));
 
-contract.on("agentQueried", async (prompt, to, taskId) => {
-    if ( to !== contract.address) {
-        return;
-    }
 
-    console.log("New prompt recieved:", prompt);
+    // save history for each query for specific task id
+    const callbacksState = {};
+    let lastCallbackId = 0;
 
-    const routerPrompt = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + " The description with their ordinal number are: " + modelDescriptions + ". Reply just with the ordinal number. Nothing else! Strictly just the ONE number!"
+    const callbackToTask = {};
 
-    try {
-        const response = await runInference(routerPrompt);
+    const tasks = {};
 
-        console.log("Generated text: ", response);
+    // get count of the models
+    const modelCount = models.length;
 
-        // get the first number from the response
-        const number = response.match(/\d+/)[0];
-
-        // check if respone is an intager and in bounds of 1 to modelCount
-        const responseInt = parseInt(number);
-        if (isNaN(responseInt) || responseInt < 1 || responseInt > modelCount) {
-            throw new Error("Invalid response");
+    contract.on("agentQueried", async (prompt, to, taskId) => {
+        if ( to !== contract.address) {
+            return;
         }
 
-        const agentAddress = agentAddresses[responseInt];
+        console.log("New prompt recieved:", prompt);
 
-        const callbackId = lastCallbackId++ ;
-        const tx = await contract.queryAgent(prompt, agentAddress, callbackId);
-        callbacksState[callbackId] = prompt;
-        callbackToTask[callbackId] = taskId;
-        await tx.wait();
-        console.log("Transaction successful");
+        const routerPrompt = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + " The description with their ordinal number are: " + modelDescriptions + ". Reply just with the ordinal number. Nothing else! Strictly just the ONE number!"
 
-    } catch (error) {
-        console.error("Error handling query event:", error);
-    }
-});
+        try {
+            const response = await runInference(routerPrompt);
 
-// listen to the agentResponded event
-contract.on("agentResponded", async (output, to, callbackId) => {
-    if (to !== contract.address) {
-        return;
-    }
+            console.log("Generated text: ", response);
 
-    console.log("Result recieved (context: " + callbackId, + "): ", output);
+            // get the first number from the response
+            const number = response.match(/\d+/)[0];
 
-    const history = callbacksState[callbackId];
-    const taskId = callbackToTask[callbackId];
-
-    const routerPrompt = "User submited this query: " + history + 
-    ". The answer to this query from an assitent who is expert on this field is: " + output + 
-    ". Whit all this information, respond to the user query.";
-
-    try {
-        const response = await runInference(routerPrompt);
-
-        console.log("Respond of the router after considering the help of other agent: ", response);
-        const tx = await contract.respond(response, taskId);
-        await tx.wait();
-        console.log("Transaction successful");
-    } catch (error) {
-        console.error("Error handling response event:", error);
-    }
-});
-
-async function runInference(prompt) {
-    const hf = new HfInference(HF_API_TOKEN); 
-    
-    const model = 'microsoft/Phi-3-mini-4k-instruct';
-  
-    try {
-      const result = await hf.textGeneration({
-        model,
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: 200,
-          do_sample: true,
-        },
-      });
-  
-      console.log('Generated text:', result.generated_text);
-      return result.generated_text;
-    } catch (error) {
-        console.error('Error during inference:', error);
-        return 'Inference error';
-    }
-}
-
-async function uploadToPinata(text) {
-    const formData = new FormData();
-    formData.append('file', Buffer.from(text, 'utf-8'), { filename: 'result.txt' });
-
-    const pinataMetadata = JSON.stringify({
-        name: 'AI Result',
-    });
-    formData.append('pinataMetadata', pinataMetadata);
-
-    const pinataOptions = JSON.stringify({
-        cidVersion: 0,
-    });
-    formData.append('pinataOptions', pinataOptions);
-
-    try {
-        const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
-            maxBodyLength: "Infinity",
-            headers: {
-                'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
-                'Authorization': `Bearer ${PINATA_JWT}`
+            // check if respone is an intager and in bounds of 1 to modelCount
+            const responseInt = parseInt(number);
+            if (isNaN(responseInt) || responseInt < 1 || responseInt > modelCount) {
+                throw new Error("Invalid response");
             }
+
+            const agentAddress = agentAddresses[responseInt];
+
+            const callbackId = lastCallbackId++ ;
+            const tx = await contract.queryAgent(prompt, agentAddress, callbackId);
+            callbacksState[callbackId] = prompt;
+            callbackToTask[callbackId] = taskId;
+            await tx.wait();
+            console.log("Transaction successful");
+
+        } catch (error) {
+            console.error("Error handling query event:", error);
+        }
+    });
+
+    // listen to the agentResponded event
+    contract.on("agentResponded", async (output, to, callbackId) => {
+        if (to !== contract.address) {
+            return;
+        }
+
+        console.log("Result recieved (context: " + callbackId, + "): ", output);
+
+        const history = callbacksState[callbackId];
+        const taskId = callbackToTask[callbackId];
+
+        const routerPrompt = "User submited this query: " + history + 
+        ". The answer to this query from an assitent who is expert on this field is: " + output + 
+        ". Whit all this information, respond to the user query.";
+
+        try {
+            const response = await runInference(routerPrompt);
+
+            console.log("Respond of the router after considering the help of other agent: ", response);
+            const tx = await contract.respond(response, taskId);
+            await tx.wait();
+            console.log("Transaction successful");
+        } catch (error) {
+            console.error("Error handling response event:", error);
+        }
+    });
+
+    async function runInference(prompt) {
+        const hf = new HfInference(HF_API_TOKEN); 
+        
+        const model = 'microsoft/Phi-3-mini-4k-instruct';
+    
+        try {
+        const result = await hf.textGeneration({
+            model,
+            inputs: prompt,
+            parameters: {
+            max_new_tokens: 200,
+            do_sample: true,
+            },
         });
-        return `https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}`;
-    } catch (error) {
-        console.error('Error uploading to Pinata:', error);
-        throw new Error('Failed to upload to Pinata');
+    
+        console.log('Generated text:', result.generated_text);
+        return result.generated_text;
+        } catch (error) {
+            console.error('Error during inference:', error);
+            return 'Inference error';
+        }
+    }
+
+    async function uploadToPinata(text) {
+        const formData = new FormData();
+        formData.append('file', Buffer.from(text, 'utf-8'), { filename: 'result.txt' });
+
+        const pinataMetadata = JSON.stringify({
+            name: 'AI Result',
+        });
+        formData.append('pinataMetadata', pinataMetadata);
+
+        const pinataOptions = JSON.stringify({
+            cidVersion: 0,
+        });
+        formData.append('pinataOptions', pinataOptions);
+
+        try {
+            const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+                maxBodyLength: "Infinity",
+                headers: {
+                    'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+                    'Authorization': `Bearer ${PINATA_JWT}`
+                }
+            });
+            return `https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}`;
+        } catch (error) {
+            console.error('Error uploading to Pinata:', error);
+            throw new Error('Failed to upload to Pinata');
+        }
     }
 }
+
+main().catch(console.error);
