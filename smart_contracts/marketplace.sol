@@ -77,17 +77,14 @@ contract Marketplace {
     function registerAgent(string memory metadata) public {
         require(bytes(agentMetadata[msg.sender].metadata).length == 0, "Agent already exists");
         agentAddresses.push(msg.sender);
-        agentMetadata[msg.sender] = Agent({
-            metadata: metadata,
-            reputation: 0
-        });
+        Agent storage newAgent = agentMetadata[msg.sender];
+        newAgent.metadata = metadata;
+        newAgent.reputation = 0;
     }
 
     function updateAgent(string memory metadata) public {
         require(bytes(agentMetadata[msg.sender].metadata).length != 0, "You dont have any agent registered to your address");
-        agentMetadata[msg.sender] = Agent({
-            metadata: metadata,
-        });
+        agentMetadata[msg.sender].metadata = metadata;
     }
 
     function getAllAgentData() public view returns (address[] memory, Agent[] memory) {
