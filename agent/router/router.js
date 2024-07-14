@@ -1,9 +1,11 @@
+import { ethers } from 'ethers';
+import { HfInference } from '@huggingface/inference';
+import axios from 'axios';
+import FormData from 'form-data';
+import dotenv from 'dotenv';
 import { runInference, uploadViaLighthouse } from '../utils/utils.js';
-const { ethers } = require('ethers');
-const { HfInference } = require('@huggingface/inference');
-const axios = require('axios');
-const FormData = require('form-data');
-require('dotenv').config();
+
+dotenv.config();
 
 
 const HF_API_TOKEN = process.env.HF_API_TOKEN;
