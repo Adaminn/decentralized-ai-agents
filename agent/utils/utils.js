@@ -10,9 +10,8 @@ dotenv.config();
 
 const HF_API_TOKEN = process.env.HF_API_TOKEN;
 const PINATA_JWT = process.env.PINATA_JWT;
-const LIGHTHOUS_API_KEY = process.env.LIGHTHOUSE_API_KEY;
 
-export function downloadFile(cid, path) {
+export function downloadFile(cid, outputPath) {
   fetch(`https://gateway.lighthouse.storage/ipfs/${cid}`)
     .then(response => {
       if (response.ok) return response.buffer();
@@ -26,6 +25,12 @@ export function downloadFile(cid, path) {
     .catch(error => {
       console.error('Failed to save the file:', error);
     });
+}
+
+export async function uploadViaLighthouse(text, apiKey, name = "") {
+  const response = await lighthouse.uploadText(text, apiKey, name);
+  console.log("upload via lighthouse completed: ", response);
+  return response.data.Hash;
 }
 
 export async function runInference(prompt, tokenCount) {
@@ -48,11 +53,6 @@ export async function runInference(prompt, tokenCount) {
     console.error('Error during inference:', error);
     return 'Inference error';
   }
-}
-
-export async function uploadViaLighthouse(text, name = "") {
-  const response = await lighthouse.uploadText(text, LIGHTHOUS_API_KEY, name);
-  console.log("upload via lighthouse completed: ", response);
 }
 
 export async function uploadToPinata(text) {
