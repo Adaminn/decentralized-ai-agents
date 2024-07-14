@@ -32,7 +32,7 @@ function App() {
         setContractInstance(new ethers.Contract(contractAddress, abi, signer));
         const address = await signer.getAddress();
         setWalletAddress(address);
-      } catch (error) {
+      } catch (error) { 
         console.error("User denied account access or an error occurred:", error);
       }
     } else {
@@ -43,7 +43,8 @@ function App() {
   const handleQuerySubmission = async () => {
     if (signer) {
       try {
-        const tx = await contractInstance.queryAgent(queryQuestion, '0xc92915e144Fc8aEf1F4acDC5ABa6C3206F23d336', 0);
+        console.log("trying Querying agent...");
+        const tx = await contractInstance.queryAgent(queryQuestion, '0x4349807050939f95Aa0C494B496F0a694D20F98E', 0, '0x32Be343B94f860124dC4fEe278FDCBD38C102D88');
         setIsSubmitted(true);
         setMessages(prevMessages => [...prevMessages, { text: queryQuestion, sender: 'user' }]);
         setQueryQuestion('');
