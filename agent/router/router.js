@@ -3,7 +3,10 @@ import { HfInference } from '@huggingface/inference';
 import axios from 'axios';
 import FormData from 'form-data';
 import dotenv from 'dotenv';
-import { runInference, downloadFile } from '../utils/utils.js';
+import { runInference } from '../utils/utils.js';
+import { promises as fs } from 'fs';
+import fetch from 'node-fetch';
+
 
 dotenv.config();
 
@@ -23,6 +26,29 @@ const provider = new ethers.providers.JsonRpcProvider(providerUrl);
 const contract = new ethers.Contract(contractAddress, abi, provider);
 const wallet = new ethers.Wallet(WALLET_PRIVATE_KEY, provider);
 const contractWithSigner = new ethers.Contract(contractAddress, abi, wallet);
+
+async function downloadFile(cid, outputPath) {
+    try {
+        const response = await fetch(`https://gateway.lighthouse.storage/ipfs/${cid}`);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok for CID: ${cid}`);
+        }
+        const buffer = Buffer.from(await response.arrayBuffer());
+        await fs.writeFile(outputPath, buffer);
+        console.log(`File saved to ${outputPath}`);
+    } catch (error) {
+        console.error(`Failed to save the file for CID: ${cid}`, error);
+    }
+}
+
+async function readJsonFiles(paths) {
+    const jsonObjects = await Promise.all(paths.map(async (filePath) => {
+        console.log(`Reading file at path: ${filePath}`);
+        const fileContent = await fs.readFile(filePath, 'utf-8');
+        return JSON.parse(fileContent);
+    }));
+    return jsonObjects;
+}
 
 async function main() {
 
@@ -47,17 +73,7 @@ async function main() {
     console.log("Other agents: ", agents);
     // this will do console log all items in agents[0]
 
-
-    // retrive the data saved on model ipfs and sotre it into array for each ipfs in modelsIpfs array
-    /*
-    const models = agents.map(async (agent) => {
-        const ipfs = agent.metadata;
-        const res = await axios.get(`https://gateway.pinata.cloud/ipfs/${ipfs}`);
-        return res.data;
-    })
-    */
     const CIDs = agents.map(agent => agent.metadata);
-    // metadata is CID, so we need to fetch the real json behind it using lighthouse
 
     // Download all JSON files
     const downloadPromises = CIDs.map(async (cid, index) => {
@@ -66,13 +82,23 @@ async function main() {
         return filePath;
     });
 
+    console.log("Starting downloads...");
     const paths = await Promise.all(downloadPromises);
 
+    console.log("Downloads completed.");
+    // Check if files exist
+    for (const filePath of paths) {
+        try {
+            await fs.access(filePath);
+            console.log(`File exists: ${filePath}`);
+        } catch (error) {
+            console.error(`File not found: ${filePath}`);
+            throw error; // Re-throw the error to stop execution
+        }
+    }
+
     // Read the JSON files and store the whole JSON objects
-    const jsonObjects = await Promise.all(paths.map(async (filePath) => {
-        const fileContent = await fs.readFile(filePath, 'utf-8');
-        return JSON.parse(fileContent);
-    }));
+    const jsonObjects = await readJsonFiles(paths);
 
     console.log('JSON Objects:', jsonObjects);
 
