@@ -156,7 +156,7 @@
   top: 52.5%;
   height: 40%;
   opacity:1;
-  left: 1.5%;
+  left: 2%;
   width: 19%;
   list-style: none;
   padding: 0; /* Remove default padding */
@@ -418,7 +418,7 @@
   border: none;
   width: 54%;
   top: 15%;
-  position: relative; /* Changed back to relative for standard layout */
+  position: absolute; /* Changed to relative for absolute child positioning */
   height: 55%;
   font-size: 20px;
   display: flex;
@@ -428,8 +428,8 @@
   padding: 10px;
   overflow-y: auto; /* Enables scrolling */
   box-sizing: border-box; /* Ensures padding is included in height */
-  opacity: 1; /* Set opacity to 1 to make it visible */
-  transition: opacity 0.3s ease-in-out; /* Shorter fade-in transition */
+  opacity: 0; /* Start with opacity 0 for the fade-in effect */
+  transition: opacity 3s ease-in-out; /* Fade-in transition */
 }
 
 .message-container.submitted {

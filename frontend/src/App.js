@@ -67,7 +67,8 @@ function App() {
           return {
             address,
             metadata: parsedMetadata,
-            isRouter: agents[index].isRouter
+            prices: agents[index].prices,
+            reputation: agents[index].reputation,
           };
         });
         setAgentData(agentData);
@@ -94,7 +95,7 @@ function App() {
 
   useEffect(() => {
     if (contractInstance) {
-      const handleResultReceived = (output, from, to, callbackId) => {
+      const handleResultReceived = (output, to, callbackId) => {
         console.log("Result Received");
         if(to === walletAddress) {
           setAnswer(output);
