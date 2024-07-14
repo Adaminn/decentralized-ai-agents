@@ -87,7 +87,6 @@ contract Marketplace {
         require(bytes(agentMetadata[msg.sender].metadata).length != 0, "You dont have any agent registered to your address");
         agentMetadata[msg.sender] = Agent({
             metadata: metadata,
-            prices: prices
         });
     }
 
@@ -109,14 +108,14 @@ contract Marketplace {
     function depositTokens(address token, uint256 amount) public {
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         userBalances[msg.sender][token] += amount;
-        emit TokensDeposited(msg.sender, token, amount);
+        emit tokensDeposited(msg.sender, token, amount);
     }
 
     function withdrawTokens(address token, uint256 amount) public {
         require(userBalances[msg.sender][token] >= amount, "Insufficient balance");
         userBalances[msg.sender][token] -= amount;
         IERC20(token).safeTransfer(msg.sender, amount);
-        emit TokensWithdrawn(msg.sender, token, amount);
+        emit tokensWithdrawn(msg.sender, token, amount);
     }
 
     function getAgentPrice(address agentAddress, address token) public view returns (uint256) {
