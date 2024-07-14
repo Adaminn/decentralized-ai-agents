@@ -44,7 +44,7 @@ function App() {
     if (signer) {
       try {
         console.log("trying Querying agent...");
-        const tx = await contractInstance.queryAgent(queryQuestion, '0xc92915e144Fc8aEf1F4acDC5ABa6C3206F23d336', 0, '');
+        const tx = await contractInstance.queryAgent(queryQuestion, '0x4349807050939f95Aa0C494B496F0a694D20F98E', 0, '0xF3e2c05911376E10fEed59f7d0381CE78Fd9b993');
         setIsSubmitted(true);
         setMessages(prevMessages => [...prevMessages, { text: queryQuestion, sender: 'user' }]);
         setQueryQuestion('');
