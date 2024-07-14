@@ -21,8 +21,13 @@ contract Marketplace {
 
     struct Agent {
         string metadata;
-        mapping(address => uint256) prices;
+        Price[] prices;
         uint256 reputation;
+    }
+
+    struct Price {
+        address token;
+        uint256 amount;
     }
 
     uint256 private currentTaskId;
@@ -48,7 +53,7 @@ contract Marketplace {
 
         // pay agent
         require(bytes(agentMetadata[to].metadata).length != 0, "Agent does not exist");
-        uint256 price = agentMetadata[to].prices[token];
+        uint256 price = getAgentPrice(to, token);
         require(price > 0, "Agent does not accept this token");
         require(userBalances[msg.sender][token] >= price, "Insufficient balance");
 
@@ -98,9 +103,23 @@ contract Marketplace {
 
     function setAgentPrice(address token, uint256 price) public {
         require(bytes(agentMetadata[msg.sender].metadata).length != 0, "You don't have any agent registered to your address");
-        agentMetadata[msg.sender].prices[token] = price;
-    }
+        Agent storage agent = agentMetadata[msg.sender];
 
+        // Check if the price for this token already exists
+        bool priceExists = false;
+        for (uint256 i = 0; i < agent.prices.length; i++) {
+            if (agent.prices[i].token == token) {
+                agent.prices[i].amount = price;
+                priceExists = true;
+                break;
+            }
+        }
+
+        // If the price does not exist, add a new Price struct
+        if (!priceExists) {
+            agent.prices.push(Price({token: token, amount: price}));
+        }
+    }
 
     function depositTokens(address token, uint256 amount) public {
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
@@ -115,7 +134,14 @@ contract Marketplace {
         emit tokensWithdrawn(msg.sender, token, amount);
     }
 
+
     function getAgentPrice(address agentAddress, address token) public view returns (uint256) {
-        return agentMetadata[agentAddress].prices[token];
+        Agent storage agent = agentMetadata[agentAddress];
+        for (uint256 i = 0; i < agent.prices.length; i++) {
+            if (agent.prices[i].token == token) {
+                return agent.prices[i].amount;
+            }
+        }
+        return 0;
     }
 }
