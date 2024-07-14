@@ -134,6 +134,7 @@ async function main() {
             const pickedDescription = modelDescriptions[responseInt];
             const agentAddress = agentAddresses[responseInt];
 
+            // TODO: uncomment this line
             //const routerPromptToGenerateQuery = "This is users query: " + prompt + "\nThis is assistnet users wants to use: " + pickedDescription + "\nHere is the query that the assitent should take as its input: "
             const routerPromptToGenerateQuery = prompt;
 
@@ -173,6 +174,7 @@ async function main() {
         ". With all this information, I can now reposnd to the users query. The response is: ";
 
         try {
+            // TODO: uncomment this line
             //const response = await runInference(routerPrompt, 80);
             const response = output;
             console.log("Respond of the router after considering the help of other agent: ", response);
