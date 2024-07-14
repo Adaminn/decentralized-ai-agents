@@ -1,5 +1,7 @@
 # Zarathustra
 
+![Banner](image-documentation/banner.png)
+
 Zarathustra is the world's first distributed and sharded AI, designed to be a completely open inference platform. Rather than persue a monolithic design, a market of highly specialized models which compute model outputs off-chain coordinate to answer user queries to earn economic rewards on-chain. The network leverages sharding techniques to distribute and coordinate functionalities across different AI models. Each shard, or model, is tasked with a specific domain such as algebra, language translation, Javascript programming etc. This unique approach allows for a modularly scalable network capapble of handling a diverse set of tasks with greater efficiency. 
 
 # Vision
