@@ -9,7 +9,7 @@ import fetch from 'node-fetch';
 
 
 dotenv.config();
-
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const HF_API_TOKEN = process.env.HF_API_TOKEN;
 const PINATA_JWT = process.env.PINATA_JWT;
