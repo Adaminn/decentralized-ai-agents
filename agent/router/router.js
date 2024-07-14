@@ -3,7 +3,7 @@ import { HfInference } from '@huggingface/inference';
 import axios from 'axios';
 import FormData from 'form-data';
 import dotenv from 'dotenv';
-import { runInference, uploadViaLighthouse } from '../utils/utils.js';
+import { runInference, downloadFile } from '../utils/utils.js';
 
 dotenv.config();
 
@@ -56,12 +56,37 @@ async function main() {
         return res.data;
     })
     */
-    const metadatas = agents.map(agent => agent.metadata);
+    const CIDs = agents.map(agent => agent.metadata);
+    // metadata is CID, so we need to fetch the real json behind it using lighthouse
 
-    const modelDescriptionsText = metadatas.map((metadata, index) => `${index + 1}. ${metadata}`).join(", "); 
+    // Download all JSON files
+    const downloadPromises = CIDs.map(async (cid, index) => {
+        const filePath = `./model${index}.json`;
+        await downloadFile(cid, filePath);
+        return filePath;
+    });
+
+    const paths = await Promise.all(downloadPromises);
+
+    // Read the JSON files and store the whole JSON objects
+    const jsonObjects = await Promise.all(paths.map(async (filePath) => {
+        const fileContent = await fs.readFile(filePath, 'utf-8');
+        return JSON.parse(fileContent);
+    }));
+
+    console.log('JSON Objects:', jsonObjects);
+
+    // Extract descriptions
+    const descriptions = jsonObjects.map(jsonData => jsonData.description);
+
+    console.log('Descriptions:', descriptions);
+
+
+
+    const modelDescriptionsText = descriptions.map((description, index) => `${index + 1}. ${description}`).join(", "); 
     console.log("Model descriptions in text with ordinals: ", modelDescriptionsText);
 
-    const modelDescriptions = metadatas.map((metadata, index) => ({ [index + 1]: metadata }));
+    const modelDescriptions = descriptions.map((description, index) => ({ [index + 1]: description }));
     console.log("Model descriptions with ordinals: ", modelDescriptions);
 
     const agentAddresses = addresses.reduce((acc, address, index) => {
@@ -77,7 +102,7 @@ async function main() {
     const callbackToTask = {};
 
     // get count of the models
-    const modelCount = metadatas.length;
+    const modelCount = CIDs.length;
 
     console.log("Listening for query events...");
 
@@ -88,7 +113,9 @@ async function main() {
 
         console.log("New prompt recieved:", prompt);
 
-        const routerPromptToGetId = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + "\nThe description with their ordinal number are: " + modelDescriptionsText + "\n\n The ordinal number of the description that best suits this task is: "
+        const routerPromptToGetId = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + 
+        "\nThe description with their ordinal number are: " + modelDescriptionsText + 
+        "\n\n The ordinal number of the description that best suits this task is: "
 
         try {
             const response = await runInference(routerPromptToGetId, 3);
