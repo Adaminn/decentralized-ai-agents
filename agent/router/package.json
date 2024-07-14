@@ -1,11 +1,12 @@
-{
-  "dependencies": {
-    "@huggingface/hub": "^0.15.1",
-    "@huggingface/inference": "^2.7.0",
-    "axios": "^1.7.2",
-    "dotenv": "^16.4.5",
-    "ethers": "^5.7.2",
-    "form-data": "^4.0.0",
-    "ipfs-http-client": "^60.0.1"
+  {
+    "type": "module",
+    "dependencies": {
+      "@huggingface/hub": "^0.15.1",
+      "@huggingface/inference": "^2.7.0",
+      "axios": "^1.7.2",
+      "dotenv": "^16.4.5",
+      "ethers": "^5.7.2",
+      "form-data": "^4.0.0",
+      "ipfs-http-client": "^60.0.1"
+    }
   }
-}
