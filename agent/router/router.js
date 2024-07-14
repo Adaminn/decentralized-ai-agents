@@ -123,7 +123,7 @@ async function main() {
     });
 
     // listen to the agentResponded event
-    contract.on("agentResponded", async (output, from, to, callbackId) => {
+    contract.on("agentResponded", async (output, to, callbackId) => {
         if (to !== wallet.address) {
             console.log("Someone responded, but not to me")
             return;
@@ -136,7 +136,7 @@ async function main() {
 
         const routerPrompt = "User submited this query: " + history + 
         ". The answer to this query from an assitent who is expert on this field is: " + output + 
-        ". Whit all this information, I can now reposnd to the users query. The response is: ";
+        ". With all this information, I can now reposnd to the users query. The response is: ";
 
         try {
             const response = await runInference(routerPrompt, 80);
