@@ -123,7 +123,7 @@ async function main() {
     });
 
     // listen to the agentResponded event
-    contract.on("agentResponded", async (output, from, to, callbackId) => {
+    contract.on("agentResponded", async (output, to, callbackId) => {
         if (to !== wallet.address) {
             console.log("Someone responded, but not to me")
             return;
