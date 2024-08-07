@@ -1,4 +1,4 @@
-# Zarathustra
+# Zarathustra - ETHGlobal Brussels 2024 Hackathon
 
 ![Banner](image-documentation/banner.png)
 

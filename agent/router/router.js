@@ -8,8 +8,7 @@ import { promises as fs } from 'fs';
 import fetch from 'node-fetch';
 
 
-dotenv.config();
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+dotenv.config({ path: '../../.env' });
 
 const HF_API_TOKEN = process.env.HF_API_TOKEN;
 const PINATA_JWT = process.env.PINATA_JWT;
@@ -139,8 +138,11 @@ async function main() {
 
         console.log("New prompt recieved:", prompt);
 
+        const systemPrompt = "You MUST responed with number. The number MUST be in range from 1 to " + modelCount + ". The number represents the description of the agent that best suits the query.";
+
         const routerPromptToGetId = "Which description out of theese best descrbes the nature of this query? The query: " + prompt + 
         "\nThe description with their ordinal number are: " + modelDescriptionsText + 
+        "\n Your answer MUST be just one number in range from 1 to " + modelCount + ". "+
         "\n\n The ordinal number of the description that best suits this task is: "
 
         try {
@@ -161,18 +163,19 @@ async function main() {
             const agentAddress = agentAddresses[responseInt];
 
             // TODO: uncomment this line
-            //const routerPromptToGenerateQuery = "This is users query: " + prompt + "\nThis is assistnet users wants to use: " + pickedDescription + "\nHere is the query that the assitent should take as its input: "
-            const routerPromptToGenerateQuery = prompt;
-
-            const assitentPrompt = await runInference(routerPromptToGenerateQuery, 100);
-
-
-
+            const routerPromptToGenerateQuery = `This is the user's query: ${prompt}
+            You are using another agent with this description: ${JSON.stringify(pickedDescription)}
+            IMPORTANT: Carefully read the agent's description, especially the 'description' field of 'input' field. You must generate input that strictly adheres to the specified format and requirements.
+            Your task is to convert the user's query into a valid input for this specific agent.
+            Generate ONLY the input for the agent, exactly as specified in the description. DO NOT INCLUDE ANY ADDITIONAL TEXT! Look at the provided example before answering and provide query in the same style as the examples (e.g. 123 * 346).`;
+            
+            console.log("Router prompt to generate query: ", routerPromptToGenerateQuery);
+            const assistantPrompt = await runInference(routerPromptToGenerateQuery, 100, "You don't answer the user's query by yourself. You generate input for the specified agent based on their description. Look at the provided example before answering and provide query in the same style as the examples (e.g. 123 + 346).");
             const callbackId = lastCallbackId++;
-            console.log("AssiassitentPrompt: ", assitentPrompt)
+            console.log("assistantPrompt: ", assistantPrompt)
             console.log("agentAddress: ", agentAddress)
             console.log("callbackId: ", callbackId)
-            const tx = await contractWithSigner.queryAgent(assitentPrompt, agentAddress, callbackId, '0xF3e2c05911376E10fEed59f7d0381CE78Fd9b993');
+            const tx = await contractWithSigner.queryAgent(assistantPrompt, agentAddress, callbackId, '0xF3e2c05911376E10fEed59f7d0381CE78Fd9b993');
             callbacksState[callbackId] = prompt;
             callbackToTask[callbackId] = taskId;
             await tx.wait();
@@ -197,12 +200,12 @@ async function main() {
 
         const routerPrompt = "User submited this query: " + history + 
         ". The answer to this query from an assitent who is expert on this field is: " + output + 
-        ". With all this information, I can now reposnd to the users query. The response is: ";
+        ". With all this information, I can now reposnd to the users query.";
 
         try {
             // TODO: uncomment this line
-            //const response = await runInference(routerPrompt, 80);
-            const response = output;
+            const response = await runInference(routerPrompt, 80, "You answer the user's query based on the information provided by other agents. Provide a clear and concise answer to the user's query. However, don't mention the fact that other agents were used to generate the answer.");
+            //const response = output;
             console.log("Respond of the router after considering the help of other agent: ", response);
             const tx = await contractWithSigner.respond(response, taskId);
             await tx.wait();

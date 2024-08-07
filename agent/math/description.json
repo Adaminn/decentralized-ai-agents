@@ -1,0 +1,17 @@
+{
+    "name": "Math Agent",
+    "description": {
+        "expertise": "I evaluate mathematical expressions using math.js",
+        "input": {
+            "type": "string",
+            "description": "A single-line mathematical expression exactly as it would be written in math.js. Examples: '2 + 3', '65437 * 34573', 'sqrt(16)', 'cos(0) + tan(pi/4)'. Do not include any explanatory text or multiple expressions."
+        },
+        "output": {
+            "type": "string",
+            "description": "The result of the evaluated expression"
+        }
+        
+    },
+    "reputation": 1,
+    "isRouter": false
+}

@@ -5,6 +5,7 @@ import { HfInference } from '@huggingface/inference';
 import axios from 'axios';
 import FormData from 'form-data';
 import dotenv from 'dotenv';
+import OpenAI from 'openai';
 
 dotenv.config();
 
@@ -33,25 +34,28 @@ export async function uploadViaLighthouse(text, apiKey, name = "") {
   return response.data.Hash;
 }
 
-export async function runInference(prompt, tokenCount) {
-  const hf = new HfInference(HF_API_TOKEN);
-
-  const model = 'microsoft/Phi-3-mini-4k-instruct';
+export async function runInference(prompt, tokenCount, systemPrompt = 'You are a helpful assistant.') {
+  const openai = new OpenAI({
+    apiKey: 'dummy', // LM Studio doesn't require an API key, but the library expects one
+    baseURL: 'http://localhost:1234/v1', // Your local LM Studio server URL
+  });
 
   try {
-    const result = await hf.textGeneration({
-      model,
-      inputs: prompt,
-      parameters: {
-        max_new_tokens: tokenCount,
-        do_sample: true,
-      },
+    const response = await openai.chat.completions.create({
+      model: 'lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt }
+      ],
+      max_tokens: tokenCount,
+      temperature: 0,
+      stream: false // Set to true if you want to handle streaming responses
     });
 
-    return result.generated_text;
+    return response.choices[0].message.content;
   } catch (error) {
     console.error('Error during inference:', error);
-    return 'Inference error';
+    throw error;
   }
 }
 
